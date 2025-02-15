@@ -1,0 +1,92 @@
+name: Frontend CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout Source Code
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Install OpenVPN
+    - name: Install OpenVPN
+      run: |
+          sudo apt update
+          sudo apt install -y openvpn openvpn-systemd-resolved
+
+    # Connect to VPN
+    - name: Connect to VPN
+      uses: kota65535/github-openvpn-connect-action@v2
+      with:
+          config_file: .github/workflows/sitst-client.ovpn
+          username: ${{ secrets.OVPN_USERNAME }}
+          password: ${{ secrets.OVPN_PASSWORD }}
+
+    # Debug Context: List Files
+    - name: Debug Build Context
+      run: ls -la /
+
+    # Build and Push Docker Image
+    - name: Build and Push Docker Image
+      env:
+        IMAGE_NAME: wachrawit/my-frontend-app
+        IMAGE_TAG: ${{ github.event.inputs.branch }}
+      run: |
+        # Login to Docker Hub
+        echo "Logging in to Docker Hub..."
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+        # Build Docker Image
+        echo "Building Docker image $IMAGE_NAME:$IMAGE_TAG..."
+        docker build -f Dockerfile -t $IMAGE_NAME:$IMAGE_TAG .
+
+        # Push Docker Image to Docker Hub
+        echo "Pushing Docker image to Docker Hub..."
+        docker push $IMAGE_NAME:$IMAGE_TAG
+
+    # Deploy via SSH
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          IMAGE_NAME=wachrawit/my-frontend-app
+          IMAGE_TAG=${{ github.event.inputs.branch }}
+
+          # Login to Docker Hub
+          echo "Logging into Docker Hub..."
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+          # Stop and Remove Old Container by Name
+          echo "Stopping and removing old container by name..."
+          docker stop my-frontend-user || true && docker rm my-frontend-user || true
+
+          # Remove Old Docker Image
+          echo "Removing old Docker image..."
+          docker rmi -f $IMAGE_NAME:$IMAGE_TAG || echo "No previous image found."
+
+          # Pull Docker Image
+          echo "Pulling latest Docker image..."
+          docker pull $IMAGE_NAME:$IMAGE_TAG
+
+          # Prune Dangling Images (Optional)
+          echo "Cleaning up unused Docker images..."
+          docker image prune -f
+
+          # Start New Container for User Frontend
+          echo "Starting new user frontend container..."
+          docker run -d --name my-frontend-user \
+            -p 4001:4000 \
+            $IMAGE_NAME:$IMAGE_TAG
+          echo "User frontend deployment complete!"
