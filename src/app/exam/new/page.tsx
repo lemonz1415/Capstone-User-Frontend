@@ -9,8 +9,10 @@ import {
   faPlay,
   faArrowLeft,
   faTimes,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/modal"; // นำเข้า Modal
+import { generateRandomExamQuery } from "@/query/exam.query";
 
 export default function NewExamPage() {
   const router = useRouter();
@@ -18,20 +20,32 @@ export default function NewExamPage() {
   const [numberOfQuestions, setNumberOfQuestions] = useState(20);
   const [isModalOpen, setIsModalOpen] = useState(false); // State สำหรับ Modal
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedExamID, setGeneratedExamID] = useState<number | null>(null); // เก็บ exam_id ที่สร้าง
 
-  const handleStartExam = () => {
-    setIsModalOpen(true); // เปิด Modal เมื่อกด Start Exam
-  };
-
-  const handleConfirmStart = async () => {
-    setIsLoading(true);
+  const handleStartExam = async () => {
+    setIsLoading(true); // แสดงสถานะ Loading
 
     try {
-      // พาไปยังหน้าคำถามข้อแรก
-      router.push(`/exam/123/question/1`);
+      // เรียก API เพื่อสร้างข้อสอบแบบสุ่ม
+      const user_id = 1; // Mock user_id (คุณสามารถเปลี่ยนเป็นค่าจริงได้)
+      const result = await generateRandomExamQuery(user_id);
+
+      if (result?.success && result.exam_id) {
+        setGeneratedExamID(result.exam_id); // เก็บ exam_id ที่สร้าง
+        setIsModalOpen(true); // เปิด Modal เมื่อสร้างสำเร็จ
+      } else {
+        console.error("Failed to generate exam");
+      }
+    } catch (error) {
+      console.error("Error starting exam:", error);
     } finally {
-      setIsLoading(false);
-      setIsModalOpen(false); // ปิด Modal หลังจากเริ่มต้น Exam
+      setIsLoading(false); // ปิดสถานะ Loading
+    }
+  };
+
+  const handleConfirmStart = () => {
+    if (generatedExamID) {
+      router.push(`/exam/${generatedExamID}/question/1`); // Redirect ไปยังหน้าคำถามข้อแรก
     }
   };
 
@@ -112,21 +126,16 @@ export default function NewExamPage() {
           </p>
         </div>
 
-        {/* Custom Exam */}
+        {/* Custom Exam (Disabled) */}
         <div
-          onClick={() => setExamType("custom")}
-          className={`p-6 rounded-lg shadow-lg border ${
-            examType === "custom"
-              ? "border-blue-500 bg-blue-100"
-              : "border-gray-200 bg-white"
-          } cursor-pointer transition-all hover:shadow-xl`}
+          className={`p-6 rounded-lg shadow-lg border border-gray-200 bg-gray-100 cursor-not-allowed`}
         >
           <FontAwesomeIcon
             icon={faCogs}
-            className="text-blue-500 text-3xl mb-4"
+            className="text-gray-400 text-3xl mb-4"
           />
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Custom Exam</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl font-bold text-gray-500 mb-2">Custom Exam</h2>
+          <p className="text-gray-400">
             Customize the number and type of questions you want to do.
           </p>
         </div>
@@ -178,8 +187,17 @@ export default function NewExamPage() {
               : "bg-blue-500 hover:bg-blue-600"
           } transition-all`}
         >
-          <FontAwesomeIcon icon={faPlay} className="mr-2" />
-          Start Exam
+          {isLoading ? (
+            <>
+              <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+              Creating...
+            </>
+          ) : (
+            <>
+              <FontAwesomeIcon icon={faPlay} className="mr-2" />
+              Start Exam
+            </>
+          )}
         </button>
       </div>
     </div>
