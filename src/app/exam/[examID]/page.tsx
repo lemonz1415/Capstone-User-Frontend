@@ -35,8 +35,8 @@ export default function ExamDetailPage() {
     const fetchExamDetail = async () => {
       setIsLoading(true);
       const data = await getExamTestedDetailQuery({ exam_id: examID });
-      setExamDetail(data);
-      setIsCompleted(data.every((q: any) => q.selected_option_id !== null)); // Check if any question was answered
+      setExamDetail(data?.exam_detail);
+      setIsCompleted(data?.is_completed);
       setIsLoading(false);
     };
     fetchExamDetail();

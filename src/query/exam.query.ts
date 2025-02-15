@@ -73,7 +73,7 @@ export const getCountQuestionByExamIDQuery = async (exam_id: number) => {
 export const getExamTestedDetailQuery = async (body: { exam_id: number }) => {
   try {
     const response = await axios.post(`${HOST_URL}/api/exam/history`, body);
-    return response?.data?.exam_detail || [];
+    return response?.data || [];
   } catch (error) {
     console.error("Error fetching exam detail:", error);
     throw error;
