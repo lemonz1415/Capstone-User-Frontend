@@ -1,23 +1,34 @@
-# ใช้ Node.js เป็น base image
-FROM node:18-alpine
+# Use the official Node.js image
+FROM node:18-alpine AS builder
 
-# ตั้งค่า working directory
+# Set working directory
 WORKDIR /app
 
-# คัดลอกไฟล์ package.json และ package-lock.json (หรือ yarn.lock) ไปยัง container
-COPY package*.json ./
-
-# ติดตั้ง dependencies
+# Copy package files and install dependencies
+COPY package.json ./
 RUN npm install
 
-# คัดลอกโค้ดทั้งหมดไปยัง container
+
+# Copy the entire application to the container
 COPY . .
 
-# Build แอป (ถ้าใช้ Next.js หรือ React)
+# Build the application
 RUN npm run build
 
-# ระบุพอร์ตที่ container จะใช้งาน
-EXPOSE 4000
+# Use a lightweight image for production
+FROM node:18-alpine AS runner
 
-# รันแอป
-CMD ["npm", "start"]
+# Set working directory
+WORKDIR /app
+
+# Copy build files from the builder stage
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "run", "start"]
