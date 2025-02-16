@@ -26,6 +26,7 @@ Thumbs.db
 .idea/
 
 # Ignore .env files with sensitive data
+.env
 .env.local
 .env.development.local
 .env.test.local
