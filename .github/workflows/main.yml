@@ -87,6 +87,6 @@ jobs:
           # Start New Container for User Frontend
           echo "Starting new user frontend container..."
           docker run -d --name my-frontend-user \
-            -p 4001:4000 \
+            -p 4001:3000 \
             $IMAGE_NAME:$IMAGE_TAG
           echo "User frontend deployment complete!"
