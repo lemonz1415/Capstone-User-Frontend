@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import HeadingImage from '../../public/images/heading-img-nobg.png'; 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBook, faChartLine, faUserGraduate, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import HeadingImage from "../../public/images/heading-img-nobg.png";
 
 const HeadingBackground = () => (
   <div className="absolute inset-0 w-full h-full">
     <Image
       src="/images/heading-bg.png"
       alt="Heading Background"
-      fill 
+      fill
       style={{ objectFit: "cover" }}
     />
   </div>
@@ -43,16 +45,15 @@ export default function Home() {
               Master Your Skills with ExamPrep
             </h1>
             <p className="text-xl text-[#475569] mb-10">
-              Enhance your knowledge through our intelligent question bank and personalized learning experience.
+              Enhance your knowledge through our intelligent question bank and
+              personalized learning experience.
             </p>
             <button
-              onClick={() => router.push('/exam')}
+              onClick={() => router.push("/exam")}
               className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-[#0066FF] rounded-full hover:bg-[#0056D2] transform hover:scale-105 transition-all duration-300"
             >
               Start Your Journey
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <FontAwesomeIcon icon={faArrowRight} className="w-5 h-5 ml-2" />
             </button>
           </div>
 
@@ -76,40 +77,33 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
-          <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-[#E0F2FE]">
+            {/* Feature 1 */}
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-[#E0F2FE]">
               <div className="bg-[#E0F2FE] w-14 h-14 rounded-lg flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2h002M9"/>
-                </svg>
+                <FontAwesomeIcon icon={faBook} size="xl" color="#0066FF" />
               </div>
               <h3 className="text-xl font-bold text-[#0066FF] mb-4">Diverse Question Bank</h3>
               <p className="text-[#475569]">Access thousands of curated questions across multiple categories and difficulty levels.</p>
             </div>
 
-
+            {/* Feature 2 */}
             <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-[#E0F2FE]">
               <div className="bg-[#E0F2FE] w-14 h-14 rounded-lg flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <FontAwesomeIcon icon={faChartLine} size="xl" color="#0066FF" />
               </div>
-              <h3 className="text-2xl font-bold text-[#0066FF] mb-4">Real-time Feedback</h3>
-              <p className="text-[#475569]">
-                Get instant performance insights and detailed explanations for every answer.
-              </p>
+              <h3 className="text-xl font-bold text-[#0066FF] mb-4">Real-time Feedback</h3>
+              <p className="text-[#475569]">Get instant performance insights and detailed explanations for every answer.</p>
             </div>
 
+            {/* Feature 3 */}
             <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-[#E0F2FE]">
               <div className="bg-[#E0F2FE] w-14 h-14 rounded-lg flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-[#0066FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110-4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
+                <FontAwesomeIcon icon={faUserGraduate} size="xl" color="#0066FF" />
               </div>
-              <h3 className="text-2xl font-bold text-[#0066FF] mb-4">Personalized Learning</h3>
-              <p className="text-[#475569]">
-                Adaptive learning path that adjusts to your skill level and progress.
-              </p>
+              <h3 className="text-xl font-bold text-[#0066FF] mb-4">Personalized Learning</h3>
+              <p className="text-[#475569]">Adaptive learning path that adjusts to your skill level and progress.</p>
             </div>
+
           </div>
         </div>
       </section>

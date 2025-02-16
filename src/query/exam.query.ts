@@ -52,12 +52,20 @@ export const getQuestionDetailQuery = async (exam_id: number, index: number) => 
 
   export const getCountQuestionByExamIDQuery = async (exam_id: number) => {
     try {
-      const response = await axios.get(`${HOST_URL}/api/exam/question/count`, {
-        params: { exam_id }, // ส่ง exam_id ผ่าน Query Parameters
-      });
+      const response = await axios.post(`${HOST_URL}/api/exam/question/count`, { exam_id });
       return response?.data?.question_count || 0; // คืนค่าจำนวนคำถาม
     } catch (error) {
       console.error("Error fetching question count:", error);
+      throw error;
+    }
+  };
+
+  export const getExamScoreQuery = async (exam_id: number) => {
+    try {
+      const response = await axios.put(`${HOST_URL}/api/exam/submit`, { exam_id });
+      return response?.data; // คืนค่าข้อมูลคะแนน
+    } catch (error) {
+      console.error("Error fetching exam score:", error);
       throw error;
     }
   };

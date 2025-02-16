@@ -1,6 +1,5 @@
 "use client";
 
-// import Button from "@/components/button/button";
 import Image from "next/image";
 import NotFoundImg from "../../public/images/404-status-img.png";
 import { useRouter } from "next/navigation";
@@ -32,13 +31,6 @@ export default function NotFound() {
         >
           Back to Homepage
         </button>
-        {/* <Button
-          title="Go to Homepage"
-          onClick={() => router.push("/")}
-          bgColor="bg-primary-5"
-          padding="px-16 py-3"
-          fontSize="body-boldM"
-        /> */}
       </div>
     </div>
   );

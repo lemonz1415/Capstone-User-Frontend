@@ -45,7 +45,7 @@ export default function NewExamPage() {
 
   const handleConfirmStart = () => {
     if (generatedExamID) {
-      router.push(`/exam/${generatedExamID}/question/1`); // Redirect ไปยังหน้าคำถามข้อแรก
+      router.push(`/exam/${generatedExamID}/question`); // Redirect ไปยังหน้าคำถามข้อแรก
     }
   };
 
@@ -77,17 +77,13 @@ export default function NewExamPage() {
                 </li>
               )}
             </ul>
-            {/* ข้อความสำคัญ */}
-            <p className="mt-6 font-semibold text-red-500 bg-red-100 rounded-lg px-2 py-2">
-              *Once you start this exam, you must complete it before leaving.
-              Your progress will not be saved if you exit.
-            </p>
             <p className="mt-6">Are you sure you want to proceed?</p>
           </>
         }
         confirmText="Confirm"
         cancelText="Cancel"
         actionType="default"
+        isPreview={true}
       />
 
       {/* Back Button */}
@@ -108,9 +104,9 @@ export default function NewExamPage() {
       {/* เลือกประเภทของ Exam */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Random Exam */}
-        <div
+        <button
           onClick={() => setExamType("random")}
-          className={`p-6 rounded-lg shadow-lg border ${
+          className={`p-6 rounded-lg shadow-lg border text-left ${
             examType === "random"
               ? "border-blue-500 bg-blue-100"
               : "border-gray-200 bg-white"
@@ -124,7 +120,7 @@ export default function NewExamPage() {
           <p className="text-gray-600">
             Let the system randomly generate questions for you.
           </p>
-        </div>
+        </button>
 
         {/* Custom Exam (Disabled) */}
         <div
@@ -156,6 +152,7 @@ export default function NewExamPage() {
             value={numberOfQuestions}
             onChange={(e) => setNumberOfQuestions(parseInt(e.target.value))}
             min="1"
+            disabled
             className="w-full text-gray-700 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
           />
         </div>

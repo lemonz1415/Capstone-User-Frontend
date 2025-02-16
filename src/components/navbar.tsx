@@ -15,7 +15,7 @@ export default function Navbar() {
         {/* Centered Links */}
         <div className="flex items-center space-x-6">
           <button onClick={() => router.push('/exam')} className="hover:text-blue-200">
-            Practice
+            Exam
           </button>
           <button onClick={() => router.push('/about')} className="hover:text-blue-200">
             About

@@ -1,17 +1,18 @@
+"use client";
 import React from "react";
 
-export const QuestionContent = React.memo(
+const QuestionContent = React.memo(
   ({
     isLoading,
     currentQuestion,
-    answers,
     currentQuestionIndex,
+    answers,
     handleSelectOption,
   }: {
     isLoading: boolean;
     currentQuestion: any;
-    answers: (string | null)[];
     currentQuestionIndex: number;
+    answers: ( number | null)[];
     handleSelectOption: (option_id: number) => void;
   }) => {
     if (isLoading) {
@@ -24,7 +25,6 @@ export const QuestionContent = React.memo(
 
     return (
       <>
-        {/* Question Text */}
         <p className="text-lg font-medium text-gray-800">{currentQuestion.question_text}</p>
 
         {/* Choices */}
@@ -47,3 +47,5 @@ export const QuestionContent = React.memo(
     );
   }
 );
+
+export default QuestionContent

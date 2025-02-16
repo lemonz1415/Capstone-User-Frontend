@@ -4,24 +4,23 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
-  faCircleXmark,
   faQuestion,
   faEye,
   faXmark
 } from "@fortawesome/free-solid-svg-icons";
 
 export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirmFetch: (() => Promise<void>) | (() => void); 
-  title: string;
-  message: string | React.ReactNode;
-  confirmText?: string;
-  cancelText?: string;
-  icon?: IconDefinition;
-  iconColor?: string;
-  actionType?: "delete" | "default";
-  isPreview?: boolean;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onConfirmFetch: (() => Promise<void>) | (() => void); 
+  readonly title: string;
+  readonly message: string | React.ReactNode;
+  readonly confirmText?: string;
+  readonly cancelText?: string;
+  readonly icon?: IconDefinition;
+  readonly iconColor?: string;
+  readonly actionType?: "delete" | "default";
+  readonly isPreview?: boolean;
 }
 
 export default function Modal({
@@ -67,12 +66,9 @@ export default function Modal({
         </button>
         <div className="flex justify-center mb-6">
           <div
-            className={`${
-              isPreview
-                ? "bg-blue-500"
-                : actionType === "delete"
-                ? "bg-red-500"
-                : "bg-blue-500"
+            className={`${ actionType === "delete"
+              ? "bg-red-500"
+              : "bg-blue-500"
             } p-6 rounded-full w-20 h-20 flex items-center justify-center`}
           >
             <FontAwesomeIcon
