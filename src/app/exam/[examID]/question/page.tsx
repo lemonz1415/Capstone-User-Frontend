@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  getQuestionDetailQuery,
   updateSelectedOptionQuery,
-  getCountQuestionByExamIDQuery,
+  getExamScoreQuery,
+  getExamTestedDetailQuery,
 } from "@/query/exam.query";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "@/components/modal";
@@ -15,62 +15,46 @@ export default function QuestionPage() {
   const router = useRouter();
   const params = useParams();
   const examID = parseInt(params.examID as string);
-  
+
+  const [questions, setQuestions] = useState<any[]>([]); // เก็บข้อมูลคำถามทั้งหมด
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // เก็บ Index ของคำถามปัจจุบัน
-  const [currentQuestion, setCurrentQuestion] = useState<any>(null); // เก็บข้อมูลคำถามปัจจุบัน
   const [answers, setAnswers] = useState<(number | null)[]>([]); // เก็บคำตอบของผู้ใช้
-  const [totalQuestions, setTotalQuestions] = useState(0); // จำนวนคำถามทั้งหมด
+  const [isInProgress, setIsInProgress] = useState(true); // เก็บสถานะ is_inprogress
+  const [isCompleted, setIsCompleted] = useState(false); 
   const [isLoading, setIsLoading] = useState(true); // สถานะ Loading
   const [error, setError] = useState<string | null>(null); // ข้อผิดพลาด
   const [isModalOpen, setIsModalOpen] = useState(false); // State สำหรับ Modal
-  const [visibleDotsRange, setVisibleDotsRange] = useState<[number, number]>([
-    0, 10,
-  ]); // ช่วงคำถามที่แสดง (เริ่มต้นที่ข้อ 1-10)
+  const [visibleDotsRange, setVisibleDotsRange] = useState<[number, number]>([0, 10,]); // ช่วงคำถามที่แสดง (เริ่มต้นที่ข้อ 1-10)
 
-  // Fetch จำนวนคำถามทั้งหมดเมื่อ Component ถูก Mount
+  // Fetch ข้อมูลเมื่อ Component ถูก Mount
   useEffect(() => {
-    const fetchTotalQuestions = async () => {
-      try {
-        const count = await getCountQuestionByExamIDQuery(examID);
-        setTotalQuestions(count);
-        setAnswers(Array(count).fill(null)); // เตรียม State สำหรับเก็บคำตอบ
-      } catch (err) {
-        console.error("Error fetching question count:", err);
-        toast.error("Failed to load question count.");
-      }
-    };
-
-    fetchTotalQuestions();
-  }, [examID]);
-
-  // Fetch ข้อมูลคำถามเมื่อ currentQuestionIndex เปลี่ยน
-  useEffect(() => {
-    if (totalQuestions === 0) return; // รอให้จำนวนคำถามถูกโหลดก่อน
-
-    const fetchQuestion = async () => {
+    const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        const data = await getQuestionDetailQuery(examID, currentQuestionIndex);
-        setCurrentQuestion(data); // เก็บข้อมูลคำถามใน State
+        // Fetch ข้อมูลคำถามและคำตอบทั้งหมด
+        const data = await getExamTestedDetailQuery({ exam_id: examID });
+        console.log(data)
+        // อัปเดตข้อมูลคำถามและคำตอบ
+        setQuestions(data.exam_detail || []);
+        const initialAnswers = data.exam_detail.map(
+          (question: any) => question.selected_option_id || null
+        );
+        setAnswers(initialAnswers);
 
-        if (!answers[currentQuestionIndex]) {
-          setAnswers((prev) => {
-            const updatedAnswers = [...prev];
-            updatedAnswers[currentQuestionIndex] =
-              data.selected_option_id || null; // ดึงค่า selected_option_id มาเก็บใน State
-            return updatedAnswers;
-          });
-        }
+        // อัปเดตสถานะ is_inprogress
+        setIsInProgress(data.is_inprogress);
+        setIsCompleted(data.is_completed);
       } catch (err) {
-        console.error("Error fetching question:", err);
-        setError("Failed to load question. Please try again.");
+        console.error("Error fetching initial data:", err);
+        toast.error("Failed to load initial data.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchQuestion();
-  }, [examID, currentQuestionIndex, totalQuestions]);
+    fetchInitialData();
+  }, [examID]);
+
 
   // ฟังก์ชันสำหรับเลือกคำตอบ
   const handleSelectOption = async (option_id: number) => {
@@ -80,12 +64,14 @@ export default function QuestionPage() {
           index === currentQuestionIndex ? option_id  : ans
         )
       );
-
-      await updateSelectedOptionQuery(
+      const response = await updateSelectedOptionQuery(
         examID,
-        currentQuestion.question_id,
+        questions[currentQuestionIndex]?.question_id,
         option_id
       );
+      if (response?.is_inprogress !== undefined) {
+        setIsInProgress(response.is_inprogress);
+      }
     } catch (error) {
       console.error("Error updating answer:", error);
       toast.error("Failed to save answer. Please try again.");
@@ -93,10 +79,12 @@ export default function QuestionPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1 && !isLoading) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (currentQuestionIndex < questions.length - 1 && !isLoading) {
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+
       // อัปเดตช่วงของ Indicator Dots
-      if (currentQuestionIndex + 1 >= visibleDotsRange[1]) {
+      if (nextIndex >= visibleDotsRange[1]) {
         setVisibleDotsRange([
           visibleDotsRange[0] + 10,
           visibleDotsRange[1] + 10,
@@ -107,9 +95,11 @@ export default function QuestionPage() {
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0 && !isLoading) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1 );
+      const prevIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(prevIndex);
+
       // อัปเดตช่วงของ Indicator Dots
-      if (currentQuestionIndex - 1 < visibleDotsRange[0]) {
+      if (prevIndex < visibleDotsRange[0]) {
         setVisibleDotsRange([
           visibleDotsRange[0] - 10,
           visibleDotsRange[1] - 10,
@@ -122,11 +112,45 @@ export default function QuestionPage() {
     setIsModalOpen(true); // เปิด Modal เมื่อกด Submit
   };
 
-  const confirmSubmit = () => {
-    setIsModalOpen(false); // ปิด Modal
-    toast.success("Exam Submitted Successfully!"); // แสดง Toast Notification
-    router.push(`/exam/${examID}`) ;
+  const confirmSubmit = async () => {
+    try {
+      setIsModalOpen(false); // ปิด Modal
+      toast.loading("Submitting exam...");
+  
+      // เรียก API เพื่อ Submit ข้อสอบ
+      await getExamScoreQuery(examID);
+  
+      toast.dismiss();
+      toast.success("Exam Submitted Successfully!");
+  
+      // Redirect ไปยังหน้ารายละเอียดข้อสอบ
+      setTimeout(() => {
+        router.push(`/exam/${examID}`);
+      }, 1000);
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error submitting exam:", error);
+      toast.error("Failed to submit exam. Please try again.");
+    }
   };
+
+// ดักจับ Event ปุ่ม Arrow Keys
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "ArrowRight") {
+      handleNext(); // กดลูกศรขวาเพื่อไปข้อถัดไป
+    } else if (event.key === "ArrowLeft") {
+      handlePrevious(); // กดลูกศรซ้ายเพื่อย้อนกลับข้อก่อนหน้า
+    } 
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [currentQuestionIndex, isLoading]); // ดักจับการเปลี่ยนแปลงของ currentQuestionIndex และ isLoading
+
 
   if (error) {
     return <p className="text-center text-red-500">{error}</p>;
@@ -149,42 +173,44 @@ export default function QuestionPage() {
         cancelText="Cancel"
       />
 
-      {/* Progress Bar */}
-      {totalQuestions > 0 && (
+       {/* Progress Bar */}
+       {questions.length > 0 && (
         <div className="w-full max-w-3xl mx-auto mb-6">
           <div className="w-full bg-gray-200 h-[6px] rounded-lg overflow-hidden">
             <div
               className="bg-blue-500 h-[6px] rounded-lg transition-all duration-500 ease-in-out"
               style={{
-                width: `${(answeredCount / totalQuestions) * 100}%`,
+                width: `${(answeredCount / questions.length) * 100}%`,
               }}
             />
           </div>
           <div className="text-right text-gray-700 text-sm mt-[2px]">
-            {answeredCount}/{totalQuestions} answered
+            {answeredCount}/{questions.length} answered
           </div>
         </div>
       )}
 
-      {/* Question Content */}
-      <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-6">
+       {/* Question Content */}
+       <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-6">
         <p className="text-sm font-medium text-gray-500 text-center">
           Question {currentQuestionIndex + 1}
         </p>
 
-        <QuestionContent
-          isLoading={isLoading}
-          currentQuestion={currentQuestion}
-          answers={answers}
-          currentQuestionIndex={currentQuestionIndex}
-          handleSelectOption={handleSelectOption}
-        />
+        {questions[currentQuestionIndex] && (
+          <QuestionContent
+            isLoading={isLoading}
+            currentQuestion={questions[currentQuestionIndex]}
+            answers={answers}
+            currentQuestionIndex={currentQuestionIndex}
+            handleSelectOption={handleSelectOption}
+          />
+        )}
       </div>
 
-      {/* Indicator Dots */}
-      {totalQuestions > 0 && (
+     {/* Indicator Dots */}
+     {questions.length > 0 && (
         <div className="flex justify-center items-center space-x-2 mt-6 mb-4">
-          {Array.from({ length: totalQuestions })
+          {Array.from({ length: questions.length })
             .slice(visibleDotsRange[0], visibleDotsRange[1])
             .map((_, index) => {
               const actualIndex = visibleDotsRange[0] + index;
@@ -223,9 +249,9 @@ export default function QuestionPage() {
         {/* Next Button */}
         <button
           onClick={handleNext}
-          disabled={currentQuestionIndex === totalQuestions - 1 || isLoading}
+          disabled={currentQuestionIndex === questions.length - 1 || isLoading}
           className={`px-6 py-3 rounded-lg ${
-            currentQuestionIndex === totalQuestions - 1 || isLoading
+            currentQuestionIndex === questions.length - 1 || isLoading
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
@@ -238,9 +264,9 @@ export default function QuestionPage() {
       <div className="flex justify-center mt-6 max-w-3xl mx-auto mb-4">
         <button
           onClick={handleSubmit}
-          disabled={answeredCount !== totalQuestions} // ปุ่ม Submit จะกดได้เมื่อทำครบทุกข้อ
+          disabled={answeredCount !== questions.length || isInProgress || isCompleted} // ปุ่ม Submit จะกดได้เมื่อทำครบทุกข้อและ is_inprogress เป็น false
           className={`px-8 py-3 rounded-lg font-bold ${
-            answeredCount === totalQuestions
+            answeredCount === questions.length && !isInProgress && !isCompleted
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}

@@ -67,16 +67,13 @@ export default function ExamDetailPage() {
 
       {/* Exam Title and Score */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h1 className="text-3xl font-bold text-[#0066FF]">
+        <h1 className="text-3xl font-bold text-[#0066FF] mb-4">
           Vocabulary and Grammar Exam
         </h1>
-        <p className="text-gray-600 mt-2">
-          <span className="font-semibold">Date:</span> 2025-02-10
-        </p>
         {isCompleted && (
           <p className="text-gray-600 mt-2">
-            <span className="font-semibold">Score:</span> {correctAnswers} /{" "}
-            {totalQuestions}
+            <span className="font-semibold text-xl">Score:</span> <span className="text-xl">{correctAnswers} /{" "}
+            {totalQuestions}</span> 
           </p>
         )}
       </div>
@@ -95,12 +92,12 @@ export default function ExamDetailPage() {
                 {question.options.map((option) => (
                   <li
                     key={option.option_id}
-                    className={`px-4 py-2 rounded-lg text-black ${
+                    className={`px-4 py-2 rounded-lg text-gray-400 ${
                       isCompleted
                         ? option.is_correct === 1
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-100 text-green-700"
                           : question.selected_option_id === option.option_id
-                          ? "bg-red-100 text-red-800"
+                          ? "bg-red-100 text-red-700"
                           : ""
                         : ""
                     }`}

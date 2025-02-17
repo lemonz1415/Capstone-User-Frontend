@@ -4,12 +4,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook, faChartLine, faUserGraduate, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import HeadingBgImage from "../../public/images/heading-bg.png";
 import HeadingImage from "../../public/images/heading-img-nobg.png";
 
 const HeadingBackground = () => (
   <div className="absolute inset-0 w-full h-full">
     <Image
-      src="/images/heading-bg.png"
+      src={HeadingBgImage}
       alt="Heading Background"
       fill
       style={{ objectFit: "cover" }}

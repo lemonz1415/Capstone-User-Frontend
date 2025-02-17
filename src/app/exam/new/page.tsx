@@ -93,7 +93,7 @@ export default function NewExamPage() {
           className="absolute left-0 flex items-center text-blue-500 font-semibold"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-          Back
+          Back to Exams
         </button>
 
         <h1 className="mx-auto text-4xl font-bold text-[#0066FF]">
