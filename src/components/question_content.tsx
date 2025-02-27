@@ -12,7 +12,7 @@ const QuestionContent = React.memo(
     isLoading: boolean;
     currentQuestion: any;
     currentQuestionIndex: number;
-    answers: ( number | null)[];
+    answers: (number | null)[];
     handleSelectOption: (option_id: number) => void;
   }) => {
     if (isLoading) {
@@ -25,9 +25,15 @@ const QuestionContent = React.memo(
 
     return (
       <>
-        <p className="text-lg font-medium text-gray-800">{currentQuestion.question_text}</p>
+        {/* คำถาม */}
+        <p
+          className="text-lg font-medium text-gray-800 break-words overflow-wrap"
+          style={{ wordWrap: "break-word" }}
+        >
+          {currentQuestion.question_text}
+        </p>
 
-        {/* Choices */}
+        {/* ตัวเลือก */}
         <div className="grid grid-cols-2 gap-4">
           {currentQuestion.options.map((option: any) => (
             <button
@@ -38,6 +44,11 @@ const QuestionContent = React.memo(
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700"
               }`}
+              style={{
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
+                textAlign: "center",
+              }}
             >
               {option.option_text}
             </button>
@@ -48,4 +59,4 @@ const QuestionContent = React.memo(
   }
 );
 
-export default QuestionContent
+export default QuestionContent;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,9 +10,10 @@ import {
   faArrowLeft,
   faTimes,
   faSpinner,
+  faExclamationTriangle
 } from "@fortawesome/free-solid-svg-icons";
-import Modal from "@/components/modal"; // นำเข้า Modal
-import { generateRandomExamQuery } from "@/query/exam.query";
+import Modal from "@/components/modal"; 
+import { generateRandomExamQuery, getAllExamLogIDQuery } from "@/query/exam.query";
 
 export default function NewExamPage() {
   const router = useRouter();
@@ -21,6 +22,25 @@ export default function NewExamPage() {
   const [isModalOpen, setIsModalOpen] = useState(false); // State สำหรับ Modal
   const [isLoading, setIsLoading] = useState(false);
   const [generatedExamID, setGeneratedExamID] = useState<number | null>(null); // เก็บ exam_id ที่สร้าง
+  const [isBlocked, setIsBlocked] = useState(false); // บล็อกการเข้าถึง
+
+   // Fetch ข้อมูลเพื่อเช็คจำนวนข้อสอบที่ยังไม่เสร็จ
+   useEffect(() => {
+    const fetchExamStatus = async () => {
+      try {
+        const data = await getAllExamLogIDQuery(); // เรียก API ดึงข้อมูล Exam
+        const inProgressExams = data.filter((exam: any) => !exam.is_completed); // นับข้อสอบที่ยังไม่เสร็จ
+
+        if (inProgressExams.length >= 5) {
+          setIsBlocked(true); // บล็อกการเข้าถึงหากมี inProgress >= 5
+        }
+      } catch (error) {
+        console.error("Error fetching exam status:", error);
+      }
+    };
+
+    fetchExamStatus();
+  }, []);
 
   const handleStartExam = async () => {
     setIsLoading(true); // แสดงสถานะ Loading
@@ -53,6 +73,36 @@ export default function NewExamPage() {
     router.push("/exam"); // กลับไปยังหน้ารวม Exam
   };
 
+  if (isBlocked) {
+    return (
+      <div className="container mx-auto py-10 text-center">
+        {/* Icon */}
+        <div className="flex justify-center mb-6">
+          <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500 text-8xl mb-4" />
+        </div>
+  
+        {/* Title */}
+        <h1 className="text-xl md:text-[34px] font-extrabold text-[#FF0000] mb-4">
+          Access Denied
+        </h1>
+  
+        {/* Message */}
+        <p className="text-gray-600 mb-6">
+          You cannot create a new exam until you complete or submit your current In Progress exams.
+        </p>
+  
+        {/* Button */}
+        <button
+          onClick={handleCancel}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all"
+        >
+          Go Back to Exams
+        </button>
+      </div>
+    );
+  }
+  
+  
   return (
     <div className="container mx-auto py-10">
       {/* Modal Preview */}
@@ -128,6 +178,7 @@ export default function NewExamPage() {
         >
           <FontAwesomeIcon
             icon={faCogs}
+            style={{ fontSize: '2em' }}
             className="text-gray-400 text-3xl mb-4"
           />
           <h2 className="text-xl font-bold text-gray-500 mb-2">Custom Exam</h2>
@@ -137,26 +188,34 @@ export default function NewExamPage() {
         </div>
       </div>
 
-      {/* จำนวนคำถาม (เฉพาะ Random) */}
+      {/* Select Number of Questions */}
       {examType === "random" && (
         <div className="mb-8">
           <label
             htmlFor="numberOfQuestions"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="block text-lg font-medium text-gray-700 mb-4"
           >
-            Number of Questions:
+            Select Number of Questions:
           </label>
-          <input
-            type="number"
-            id="numberOfQuestions"
-            value={numberOfQuestions}
-            onChange={(e) => setNumberOfQuestions(parseInt(e.target.value))}
-            min="1"
-            disabled
-            className="w-full text-gray-700 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
-          />
+          {/* Button Group for Number Selection */}
+          <div className="flex space-x-4">
+            {[5, 10, 15, 20].map((num) => (
+              <button
+                key={num}
+                onClick={() => setNumberOfQuestions(num)}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  numberOfQuestions === num
+                    ? "bg-blue-500 text-white shadow-lg scale-[1.05]"
+                    : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:shadow-md"
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
         </div>
       )}
+
 
       {/* ปุ่ม Start และ Cancel */}
       <div className="flex justify-center space-x-4">

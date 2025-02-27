@@ -28,10 +28,21 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Sign In Button */}
-        <button onClick={() => {}} className="hover:text-blue-200">
-          Sign In
-        </button>
+         {/* Sign In และ Register Buttons */}
+         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => router.push("/auth/login")}
+            className="hover:text-blue-200"
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => router.push("/auth/register")}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all"
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
     </nav>
   );
