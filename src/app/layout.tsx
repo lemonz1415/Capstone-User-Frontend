@@ -4,6 +4,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
+import { AuthProvider } from "@/contexts/auth.context";
 
 config.autoAddCss = false; 
 
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+      <AuthProvider>
         <div className="min-h-screen flex flex-col">
           <Navbar />
           <main className="flex-grow">
@@ -27,6 +29,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
+        </AuthProvider>
       </body>
     </html>
   );

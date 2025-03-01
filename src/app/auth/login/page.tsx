@@ -4,11 +4,21 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faLock, faRightToBracket, faSpinner, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEnvelope,
+  faLock,
+  faRightToBracket,
+  faSpinner,
+  faEye,
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 import LoginBackground from "../../../../public/images/register-page-bg-2.jpg";
+import { loginUserQuery } from "@/query/auth.query";
+import { useAuth } from "@/contexts/auth.context";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -16,7 +26,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isFormValid = email && password
+  const isFormValid = email && password;
   const validateEmail = (value: string) => {
     if (!value) {
       setEmailError("Please enter your email");
@@ -31,9 +41,9 @@ export default function LoginPage() {
       setPasswordError("Please enter your password");
     } else if (value.length < 8) {
       setPasswordError("Password must be at least 8 characters long");
-    }else {
-        setPasswordError("");
-      }
+    } else {
+      setPasswordError("");
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -43,22 +53,43 @@ export default function LoginPage() {
     validateEmail(email);
     validatePassword(password);
 
-    // Mock API Call
+    const userData = { email, password };
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API call
-      toast.success("Login Successful!", { duration: 1000 });
-      setTimeout(() => router.push("/exam"), 1000); // Redirect to dashboard
-    } catch (error) {
-      console.error("Login failed:", error);
-      toast.error("Invalid email or password", { duration: 3000 });
+      const response = await loginUserQuery(userData);
+      if (response.success) {
+        login(response.accessToken, response.refreshToken);
+
+        toast.success(response.message || "Login successful!");
+        setTimeout(() => router.push("/exam"), 1000);
+      } else {
+        toast.error(response.message || "Login failed");
+      }
+    } catch (error: any) {
+      // Handle specific errors from backend
+      console.error("Login error:", error);
+
+      const errorMessage =
+        error.response?.data?.message || "An error occurred during login.";
+
+      if (errorMessage === "User not found") {
+        setEmailError("User not found");
+        setPasswordError(""); // Clear password error
+      } else if (errorMessage === "Invalid password") {
+        setPasswordError("Invalid password");
+        setEmailError(""); // Clear email error
+      } else {
+        setEmailError("");
+        setPasswordError("");
+        toast.error(errorMessage || "Login failed");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSignUp = () => {
-    router.push("/auth/register"); 
+    router.push("/auth/register");
   };
 
   return (
@@ -73,21 +104,30 @@ export default function LoginPage() {
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="bg-[#0066FF] py-5 px-6 rounded-3xl shadow-sm">
-            <FontAwesomeIcon icon={faRightToBracket} size="2xl" className="text-white" />
+            <FontAwesomeIcon
+              icon={faRightToBracket}
+              size="2xl"
+              className="text-white"
+            />
           </div>
         </div>
-  
+
         {/* Title */}
-        <h1 className="text-2xl font-bold text-[#0066FF] mb-2 text-center">Sign in with email</h1>
+        <h1 className="text-2xl font-bold text-[#0066FF] mb-2 text-center">
+          Sign in with email
+        </h1>
         <p className="text-sm text-gray-400 mb-6 text-center">
           Enter your email and password to access your account.
         </p>
-  
+
         {/* Form */}
         <form onSubmit={handleSubmit}>
           {/* Email */}
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+            <label
+              htmlFor="email"
+              className="block text-gray-700 text-sm font-medium mb-2"
+            >
               Email
             </label>
             <div className="relative">
@@ -113,10 +153,13 @@ export default function LoginPage() {
               <p className="text-red-500 text-xs italic mt-1">{emailError}</p>
             )}
           </div>
-  
+
           {/* Password */}
           <div className="mb-8">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-700 text-sm font-medium mb-2"
+            >
               Password
             </label>
             <div className="relative">
@@ -143,21 +186,26 @@ export default function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 flex items-center pr-3"
               >
-                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} className="text-gray-400" />
+                <FontAwesomeIcon
+                  icon={showPassword ? faEye : faEyeSlash}
+                  className="text-gray-400"
+                />
               </button>
             </div>
             {passwordError && (
-              <p className="text-red-500 text-xs italic mt-1">{passwordError}</p>
+              <p className="text-red-500 text-xs italic mt-1">
+                {passwordError}
+              </p>
             )}
           </div>
-  
+
           {/* Forgot Password */}
           {/* <div className="mb-4 text-right">
             <a href="/auth/forgot-password" className="text-sm text-blue-500 hover:underline">
               Forgot password?
             </a>
           </div> */}
-  
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -176,15 +224,18 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-  
+
         {/* Register Link */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{" "}
-          <span onClick={handleSignUp} className="text-blue-500 hover:underline cursor-pointer">
+          <span
+            onClick={handleSignUp}
+            className="text-blue-500 hover:underline cursor-pointer"
+          >
             Sign Up
           </span>
         </p>
       </div>
     </div>
   );
-}  
+}

@@ -14,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import RegisterBackground from "../../../../public/images/register-page-bg-2.jpg";
 import RegisterBannerBackground from "../../../../public/images/register-bg.jpg";
+import { registerUserQuery } from "@/query/auth.query";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -156,34 +157,25 @@ export default function RegisterPage() {
      validatePassword(password);
      validateConfirmPassword(confirmPassword);
 
-    // Mock API Call
+    const userData = { firstname, lastname, email, dob, password };
     setIsLoading(true);
      document.body.style.cursor = 'wait'; // Show loading cursor
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      console.log("Registering User:", {
-        firstname,
-        lastname,
-        email,
-        dob,
-        password,
-      });
-      toast.success("Registration Successful!", {
-        duration: 1000,
-      });
-      setTimeout(() => {
-        router.push("/auth/login");
-      }, 1000);
-    } catch (error) {
-      console.error("Registration failed:", error);
-      toast.error("Registration Failed!", {
-        duration: 3000,
-      });
+      const response = await registerUserQuery(userData);
+      if (response.success) {
+        toast.success(response.message || "Registration successful!");
+        setTimeout(() => router.push("/auth/login"), 1000); 
+      } else {
+        toast.error(response.message || "Registration failed");
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast.error(
+        error.response?.data?.message  ||
+          "An error occurred during registration. Please try again."
+      );
     } finally {
       setIsLoading(false);
-       document.body.style.cursor = 'default'; // Revert cursor
     }
   };
 

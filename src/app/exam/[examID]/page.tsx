@@ -34,7 +34,7 @@ export default function ExamDetailPage() {
   useEffect(() => {
     const fetchExamDetail = async () => {
       setIsLoading(true);
-      const data = await getExamTestedDetailQuery({ exam_id: examID });
+      const data = await getExamTestedDetailQuery(examID);
       setExamDetail(data?.exam_detail);
       setIsCompleted(data?.is_completed);
       setIsLoading(false);

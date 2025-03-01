@@ -32,7 +32,7 @@ export default function QuestionPage() {
       try {
         setIsLoading(true);
         // Fetch ข้อมูลคำถามและคำตอบทั้งหมด
-        const data = await getExamTestedDetailQuery({ exam_id: examID });
+        const data = await getExamTestedDetailQuery(examID);
         console.log(data)
         // อัปเดตข้อมูลคำถามและคำตอบ
         setQuestions(data.exam_detail || []);
