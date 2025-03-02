@@ -10,8 +10,9 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "@/components/modal";
 import QuestionContent from "@/components/question_content";
+import withAuth from "@/middlewares/withAuth";
 
-export default function QuestionPage() {
+function QuestionPage() {
   const router = useRouter();
   const params = useParams();
   const examID = parseInt(params.examID as string);
@@ -277,3 +278,5 @@ useEffect(() => {
     </div>
   );
 }
+
+export default withAuth(QuestionPage);

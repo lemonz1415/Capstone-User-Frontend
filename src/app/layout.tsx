@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import { AuthProvider } from "@/contexts/auth.context";
+import { ModalProvider } from "@/contexts/modal.context";
 
 config.autoAddCss = false; 
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
       <AuthProvider>
+      <ModalProvider>
         <div className="min-h-screen flex flex-col">
           <Navbar />
           <main className="flex-grow">
@@ -29,6 +31,7 @@ export default function RootLayout({
           </main>
           <Footer />
         </div>
+        </ModalProvider>
         </AuthProvider>
       </body>
     </html>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllExamLogIDQuery, getExamScoreQuery } from "@/query/exam.query";
-
+import withAuth from "@/middlewares/withAuth";
 interface Exam {
   exam_id: string;
   user_id: string;
@@ -13,7 +13,7 @@ interface Exam {
   is_completed: boolean;
 }
 
-export default function ExamListPage() {
+function ExamListPage() {
   const router = useRouter();
   const [exams, setExams] = useState<Exam[]>([]); // State สำหรับเก็บข้อมูล Exam
   const [scores, setScores] = useState<{
@@ -215,3 +215,5 @@ export default function ExamListPage() {
     </div>
   );
 }
+
+export default withAuth(ExamListPage);

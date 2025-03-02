@@ -21,6 +21,7 @@ export interface ModalProps {
   readonly iconColor?: string;
   readonly actionType?: "delete" | "default";
   readonly isPreview?: boolean;
+  readonly isExpired?: boolean;
 }
 
 export default function Modal({
@@ -35,6 +36,7 @@ export default function Modal({
   iconColor = "text-white",
   actionType = "default",
   isPreview = false,
+  isExpired = false,
 }: ModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,17 +60,18 @@ export default function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-8 w-[90%] max-w-xl shadow-lg text-center relative">
         {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-4 text-gray-400 hover:text-gray-500 transition-colors"
-        >
-          <FontAwesomeIcon icon={faXmark} className="text-2xl" />
-        </button>
+        {!isExpired && ( // ซ่อนปุ่ม Close หากเป็นกรณี Session หมดอายุ
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-4 text-gray-400 hover:text-gray-500 transition-colors"
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-2xl" />
+          </button>
+        )}
         <div className="flex justify-center mb-6">
           <div
-            className={`${ actionType === "delete"
-              ? "bg-red-500"
-              : "bg-blue-500"
+            className={`${
+              actionType === "delete" ? "bg-red-500" : "bg-blue-500"
             } p-6 rounded-full w-20 h-20 flex items-center justify-center`}
           >
             <FontAwesomeIcon
@@ -81,14 +84,8 @@ export default function Modal({
         <div className="text-gray-600 mb-10">{message}</div>
 
         <div className="flex justify-center space-x-4">
-          <button
-            onClick={onClose}
-            className="px-8 py-2 bg-gray-300 rounded-md text-gray-800 hover:bg-gray-400"
-            disabled={isLoading}
-          >
-            {isPreview ? "Close" : cancelText}
-          </button>
-          {(isPreview || (!isPreview && confirmText)) && (
+          {/* กรณี Session หมดอายุ แสดงเฉพาะปุ่ม Go to Login */}
+          {isExpired ? (
             <button
               onClick={handleConfirm}
               className={`px-8 py-2 ${
@@ -98,6 +95,30 @@ export default function Modal({
             >
               {isLoading ? "Processing..." : confirmText}
             </button>
+          ) : (
+            <>
+              {/* ปุ่ม Cancel */}
+              <button
+                onClick={onClose}
+                className="px-8 py-2 bg-gray-300 rounded-md text-gray-800 hover:bg-gray-400"
+                disabled={isLoading}
+              >
+                {isPreview ? "Close" : cancelText}
+              </button>
+
+              {/* ปุ่ม Confirm */}
+              {(isPreview || (!isPreview && confirmText)) && (
+                <button
+                  onClick={handleConfirm}
+                  className={`px-8 py-2 ${
+                    isLoading ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
+                  } text-white rounded-md`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : confirmText}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

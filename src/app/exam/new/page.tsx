@@ -14,8 +14,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "@/components/modal"; 
 import { generateRandomExamQuery, getAllExamLogIDQuery } from "@/query/exam.query";
+import withAuth from "@/middlewares/withAuth";
 
-export default function NewExamPage() {
+function NewExamPage() {
   const router = useRouter();
   const [examType, setExamType] = useState<"random" | "custom">("random");
   const [numberOfQuestions, setNumberOfQuestions] = useState(20);
@@ -259,3 +260,5 @@ export default function NewExamPage() {
     </div>
   );
 }
+
+export default withAuth(NewExamPage);

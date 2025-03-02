@@ -26,7 +26,7 @@ const fetchWithAuth = async (url: string, method: string, data?: any) => {
         return response.data;
       } catch (error: any) {
         // หาก Access Token หมดอายุ ให้ลอง Refresh Access Token
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401) { 
   
           accessToken = await refreshAccessToken(); // ขอ Access Token ใหม่
   

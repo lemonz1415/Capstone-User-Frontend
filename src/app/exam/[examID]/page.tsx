@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { getExamTestedDetailQuery } from "@/query/exam.query";
+import withAuth from "@/middlewares/withAuth";
 
 // Data Type Definitions
 interface Option {
@@ -22,7 +23,7 @@ interface ExamDetail2 {
   options: Option[];
 }
 
-export default function ExamDetailPage() {
+function ExamDetailPage() {
   const router = useRouter();
   const params = useParams();
   const examID = Number(params?.examID);
@@ -132,3 +133,5 @@ export default function ExamDetailPage() {
     </div>
   );
 }
+
+export default withAuth(ExamDetailPage);
