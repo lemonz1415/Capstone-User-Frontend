@@ -15,6 +15,7 @@ import {
 import Modal from "@/components/modal"; 
 import { generateRandomExamQuery, getAllExamLogIDQuery } from "@/query/exam.query";
 import withAuth from "@/middlewares/withAuth";
+import { useAuth } from "@/contexts/auth.context";
 
 function NewExamPage() {
   const router = useRouter();
@@ -24,12 +25,17 @@ function NewExamPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedExamID, setGeneratedExamID] = useState<number | null>(null); // เก็บ exam_id ที่สร้าง
   const [isBlocked, setIsBlocked] = useState(false); // บล็อกการเข้าถึง
+  const { userId } = useAuth();
 
    // Fetch ข้อมูลเพื่อเช็คจำนวนข้อสอบที่ยังไม่เสร็จ
    useEffect(() => {
     const fetchExamStatus = async () => {
       try {
-        const data = await getAllExamLogIDQuery(); // เรียก API ดึงข้อมูล Exam
+        if (!userId) {
+          console.error("User ID not found");
+          return;
+        }
+        const data = await getAllExamLogIDQuery(userId); // เรียก API ดึงข้อมูล Exam
         const inProgressExams = data.filter((exam: any) => !exam.is_completed); // นับข้อสอบที่ยังไม่เสร็จ
 
         if (inProgressExams.length >= 5) {
@@ -48,8 +54,11 @@ function NewExamPage() {
 
     try {
       // เรียก API เพื่อสร้างข้อสอบแบบสุ่ม
-      const user_id = 1; // Mock user_id (คุณสามารถเปลี่ยนเป็นค่าจริงได้)
-      const result = await generateRandomExamQuery(user_id);
+      if (!userId) {
+        console.error("User ID not found");
+        return;
+      }
+      const result = await generateRandomExamQuery(userId);
 
       if (result?.success && result.exam_id) {
         setGeneratedExamID(result.exam_id); // เก็บ exam_id ที่สร้าง

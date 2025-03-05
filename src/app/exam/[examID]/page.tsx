@@ -35,10 +35,15 @@ function ExamDetailPage() {
   useEffect(() => {
     const fetchExamDetail = async () => {
       setIsLoading(true);
-      const data = await getExamTestedDetailQuery(examID);
-      setExamDetail(data?.exam_detail);
-      setIsCompleted(data?.is_completed);
-      setIsLoading(false);
+      try {
+        const data = await getExamTestedDetailQuery(examID);
+        setExamDetail(data?.exam_detail);
+        setIsCompleted(data?.is_completed);
+      } catch (error) {
+        console.error("Error fetching exam detail:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchExamDetail();
   }, [examID]);

@@ -34,7 +34,6 @@ function QuestionPage() {
         setIsLoading(true);
         // Fetch ข้อมูลคำถามและคำตอบทั้งหมด
         const data = await getExamTestedDetailQuery(examID);
-        console.log(data)
         // อัปเดตข้อมูลคำถามและคำตอบ
         setQuestions(data.exam_detail || []);
         const initialAnswers = data.exam_detail.map(

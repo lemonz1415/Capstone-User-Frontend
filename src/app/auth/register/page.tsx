@@ -12,11 +12,12 @@ import {
   faEnvelope,
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
-import RegisterBackground from "../../../../public/images/register-page-bg-2.jpg";
+import RegisterBackground from "../../../../public/images/auth-page-bg.jpg";
 import RegisterBannerBackground from "../../../../public/images/register-bg.jpg";
 import { registerUserQuery } from "@/query/auth.query";
+import withAuth from "@/middlewares/withAuth";
 
-export default function RegisterPage() {
+function RegisterPage() {
   const router = useRouter();
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
@@ -159,12 +160,15 @@ export default function RegisterPage() {
 
     const userData = { firstname, lastname, email, dob, password };
     setIsLoading(true);
-     document.body.style.cursor = 'wait'; // Show loading cursor
     try {
       const response = await registerUserQuery(userData);
       if (response.success) {
-        toast.success(response.message || "Registration successful!");
-        setTimeout(() => router.push("/auth/login"), 1000); 
+        toast.success(response.message || "Registration successful! Please check your email for the OTP.");
+        sessionStorage.setItem("isRegistered", "true"); // เก็บสถานะใน sessionStorage
+        setTimeout(() => {
+          toast.dismiss(); 
+          router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+        }, 1000);
       } else {
         toast.error(response.message || "Registration failed");
       }
@@ -483,3 +487,4 @@ export default function RegisterPage() {
   );
 }
 
+export default withAuth(RegisterPage);

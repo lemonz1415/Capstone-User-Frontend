@@ -12,6 +12,7 @@ interface Exam {
   time_taken: string | null;
   is_completed: boolean;
 }
+import { useAuth } from "@/contexts/auth.context";
 
 function ExamListPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ function ExamListPage() {
   }>({}); // เก็บ Score ของแต่ละ Exam
   const [isLoading, setIsLoading] = useState(true); // State สำหรับ Loading
   const isNoExams = !isLoading && exams.length === 0;
+  const { userId } = useAuth();
 
   // คำนวณจำนวนข้อสอบที่ยังไม่เสร็จ (is_completed = false)
   const inProgressCount = exams.filter((exam) => !exam.is_completed).length; // นับข้อสอบที่ยังไม่เสร็จ
@@ -30,7 +32,12 @@ function ExamListPage() {
     const fetchExams = async () => {
       setIsLoading(true);
       try {
-        const data = await getAllExamLogIDQuery(); // เรียก API ดึงข้อมูล Exam
+        if (!userId) {
+            console.error("User ID not found");
+            return;
+          }
+
+        const data = await getAllExamLogIDQuery(userId); // เรียก API ดึงข้อมูล Exam
 
         // จัดเรียงข้อมูลตามวันที่ create_at (ใหม่ -> เก่า)
         const sortedData = data.sort(
@@ -171,7 +178,7 @@ function ExamListPage() {
 
               {/* Title */}
               <h2 className="text-xl font-bold text-[#0066FF] mb-2">
-                Exam {exam.exam_id}
+                Exam 
               </h2>
 
               {/* Date and Time */}

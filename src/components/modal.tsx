@@ -3,16 +3,12 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import {
-  faQuestion,
-  faEye,
-  faXmark
-} from "@fortawesome/free-solid-svg-icons";
+import { faQuestion, faEye, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 export interface ModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly onConfirmFetch: (() => Promise<void>) | (() => void); 
+  readonly onConfirmFetch: (() => Promise<void>) | (() => void);
   readonly title: string;
   readonly message: string | React.ReactNode;
   readonly confirmText?: string;
@@ -80,7 +76,9 @@ export default function Modal({
             />
           </div>
         </div>
-        <h2 className="text-2xl font-bold mb-4 text-[#0066FF]">{title}</h2>
+        <h2 className={`text-2xl font-bold mb-4 ${actionType === "delete" ? "text-red-500" : "text-[#0066FF]"}`}>
+          {title}
+        </h2>
         <div className="text-gray-600 mb-10">{message}</div>
 
         <div className="flex justify-center space-x-4">
@@ -89,7 +87,13 @@ export default function Modal({
             <button
               onClick={handleConfirm}
               className={`px-8 py-2 ${
-                isLoading ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
+                isLoading
+                  ? actionType === "delete"
+                    ? "bg-red-300"
+                    : "bg-blue-300"
+                  : actionType === "delete"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-blue-500 hover:bg-blue-600"
               } text-white rounded-md`}
               disabled={isLoading}
             >
@@ -111,7 +115,13 @@ export default function Modal({
                 <button
                   onClick={handleConfirm}
                   className={`px-8 py-2 ${
-                    isLoading ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
+                    isLoading
+                      ? actionType === "delete"
+                        ? "bg-red-300"
+                        : "bg-blue-300"
+                      : actionType === "delete"
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-blue-500 hover:bg-blue-600"
                   } text-white rounded-md`}
                   disabled={isLoading}
                 >

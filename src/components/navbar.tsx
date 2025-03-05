@@ -1,17 +1,40 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser, faSignOutAlt, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/contexts/auth.context";
 import { useModal } from "@/contexts/modal.context";
 import toast, { Toaster } from "react-hot-toast";
+import { fetchUserInfoQuery } from "@/query/auth.query";
 
 export default function Navbar() {
   const router = useRouter();
   const { isLoggedIn, logout } = useAuth();
   const { closeModal } = useModal();
+  const [userName, setUserName] = useState<string>("My Account");
+  const { userId } = useAuth();
   
+    // ดึงข้อมูลผู้ใช้เมื่อ login
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+          if (isLoggedIn && userId) {
+            try {
+              const userInfo = await fetchUserInfoQuery(userId);
+              if (userInfo && userInfo.firstname) {
+                // แสดงชื่อและนามสกุลของผู้ใช้
+                setUserName(`${userInfo.firstname} ${userInfo.lastname || ''}`);
+              }
+            } catch (error) {
+              console.error("Error fetching user info:", error);
+            }
+          }
+        };
+        
+        fetchUserInfo();
+      }, [isLoggedIn, userId]);
+
   const handleLogout = () => {
         closeModal();
         logout()
@@ -53,8 +76,8 @@ return (
                 <button
                   className="flex items-center space-x-2 hover:text-blue-200 transition-all"
                 >
-                  <FontAwesomeIcon icon={faCircleUser} className="text-2xl" />
-                  <span className="hidden md:inline font-bold">My Account</span>
+                  <FontAwesomeIcon icon={faCircleUser} className="text-2xl mr-1" />
+                  <span className="hidden md:inline font-bold">{userName}</span>
                 </button>
 
                 {/* Dropdown Menu (แสดงเมื่อ Hover) */}

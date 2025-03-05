@@ -17,7 +17,7 @@ const fetchWithAuth = async (url: string, method: string, data?: any) => {
           url: `${HOST_URL}${url}`,
           method,
           headers: {
-            Authorization: `${accessToken}`, // เพิ่ม Access Token ใน Header
+            Authorization: accessToken, // เพิ่ม Access Token ใน Header
             "Content-Type": "application/json",
           },
           data,
@@ -35,7 +35,7 @@ const fetchWithAuth = async (url: string, method: string, data?: any) => {
             url: `${HOST_URL}${url}`,
             method,
             headers: {
-              Authorization: `${accessToken}`,
+              Authorization: accessToken,
               "Content-Type": "application/json",
             },
             data,
@@ -62,9 +62,9 @@ const fetchWithAuth = async (url: string, method: string, data?: any) => {
 //   }
 // };
 
-export const getAllExamLogIDQuery = async () => {
+export const getAllExamLogIDQuery = async (user_id: number) => {
     try {
-      const response = await fetchWithAuth("/api/exam/examID", "GET");
+      const response = await fetchWithAuth(`/api/exam/${user_id}/all`, "GET");
       return response?.exams || []; 
     } catch (error) {
       console.error("Error fetching exams:", error);
@@ -104,9 +104,9 @@ export const getAllExamLogIDQuery = async () => {
 //   }
 // };
   
-export const getQuestionDetailQuery = async (exam_id: number, index: number) => {
-    return await fetchWithAuth("/api/exam/question", "POST", { exam_id, index });
-  };
+// export const getQuestionDetailQuery = async (exam_id: number, index: number) => {
+//     return await fetchWithAuth("/api/exam/question", "POST", { exam_id, index });
+//   };
   
 // export const updateSelectedOptionQuery = async (
 //   exam_id: number,

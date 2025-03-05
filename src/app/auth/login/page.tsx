@@ -12,11 +12,12 @@ import {
   faEye,
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
-import LoginBackground from "../../../../public/images/register-page-bg-2.jpg";
+import LoginBackground from "../../../../public/images/auth-page-bg.jpg";
 import { loginUserQuery } from "@/query/auth.query";
 import { useAuth } from "@/contexts/auth.context";
+import withAuth from "@/middlewares/withAuth";
 
-export default function LoginPage() {
+function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -60,6 +61,7 @@ export default function LoginPage() {
       if (response.success) {
         login(response.accessToken, response.refreshToken);
 
+        sessionStorage.setItem("justLoggedIn", "true");
         toast.success(response.message || "Login successful!");
         setTimeout(() => router.push("/exam"), 1000);
       } else {
@@ -78,7 +80,12 @@ export default function LoginPage() {
       } else if (errorMessage === "Invalid password") {
         setPasswordError("Invalid password");
         setEmailError(""); // Clear email error
-      } else {
+      }else if (errorMessage === "Please verify your email before logging in") {
+        toast.error(errorMessage);
+        // ถ้าผู้ใช้ยังไม่ได้ยืนยันอีเมล ให้ redirect ไปยังหน้ายืนยันอีเมล
+        setTimeout(() => router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`), 1000);
+      } 
+      else {
         setEmailError("");
         setPasswordError("");
         toast.error(errorMessage || "Login failed");
@@ -239,3 +246,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default withAuth(LoginPage)
