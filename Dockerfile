@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run build || (tail -n 50 /app/.next/error.log && exit 1)
 
 # Use a lightweight image for production
 FROM node:18-alpine AS runner
