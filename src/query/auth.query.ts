@@ -115,17 +115,13 @@ export const fetchUserInfoQuery = async (user_id: any) => {
       throw new Error("No access token found. Please log in again.");
     }
 
-    const response = await axios.post(
-      `${HOST_URL}/api/auth/me`,
-      { user_id: user_id }, // request body
-      {
-        // config object
-        headers: {
-          Authorization: accessToken,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.get(`${HOST_URL}/api/auth/${user_id}/me`, {
+      // config object
+      headers: {
+        Authorization: accessToken,
+        "Content-Type": "application/json",
+      },
+    });
     return response?.data?.user?.[0] || null;
   } catch (error) {
     console.error("Error fetching user info:", error);
