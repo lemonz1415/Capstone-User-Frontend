@@ -8,11 +8,13 @@ interface Exam {
   exam_id: string;
   user_id: string;
   create_at: string;
+  finish_at: string | null;
   attempt_at: string | null;
   time_taken: string | null;
   is_completed: boolean;
 }
 import { useAuth } from "@/contexts/auth.context";
+import { convertDateToEN } from "@/utils/util.function";
 
 function ExamListPage() {
   const router = useRouter();
@@ -40,11 +42,15 @@ function ExamListPage() {
         const data = await getAllExamLogIDQuery(userId); // เรียก API ดึงข้อมูล Exam
 
         // จัดเรียงข้อมูลตามวันที่ create_at (ใหม่ -> เก่า)
-        const sortedData = data.sort(
-          (examA: Exam, examB: Exam) =>
-            new Date(examB.create_at).getTime() -
-            new Date(examA.create_at).getTime()
-        );
+        const sortedData = data.sort((a, b) => {
+          const aDate = a.is_completed
+            ? new Date(a.finish_at).getTime()
+            : new Date(a.attempt_at || a.create_at).getTime();
+          const bDate = b.is_completed
+            ? new Date(b.finish_at).getTime()
+            : new Date(b.attempt_at || b.create_at).getTime();
+          return bDate - aDate;
+        });
 
         setExams(sortedData);
 
@@ -127,9 +133,8 @@ function ExamListPage() {
 
           {/* Tooltip */}
           {inProgressCount >= 5 && (
-            <div className="absolute top-[110%] left-[-380%] bg-red-500 text-white text-sm rounded-md px-3 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              You cannot create a new exam until you complete or submit your
-              current In Progress exams.
+            <div className="absolute top-[110%] left-[-325%] bg-red-500 text-white text-sm rounded-md px-3 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              You cannot create a new exam. You can have no more than 5 in-progress exams.
             </div>
           )}
         </div>
@@ -162,7 +167,7 @@ function ExamListPage() {
       {/* รายการ Exams */}
       {!isLoading && exams.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {exams.map((exam: Exam) => (
+          {exams.map((exam: Exam, index) => (
             <div
               key={exam.exam_id}
               className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 relative"
@@ -178,18 +183,22 @@ function ExamListPage() {
 
               {/* Title */}
               <h2 className="text-xl font-bold text-[#0066FF] mb-2">
-                Exam 
+                Exam
               </h2>
 
               {/* Date and Time */}
               <p className="text-gray-600 mb-2">
-                <span className="font-semibold">Created At:</span>{" "}
-                {new Date(exam.create_at).toLocaleDateString("en-GB")}{" "}
-                {new Date(exam.create_at).toLocaleTimeString("en-GB", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
+                {exam.is_completed ? (
+                  <>
+                    <span className="font-semibold">Submitted:</span>{" "}
+                    {exam.finish_at ? convertDateToEN(exam.finish_at) : "-"}
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold">Created At:</span>{" "}
+                    {convertDateToEN(exam.create_at)}
+                  </>
+                )}
               </p>
 
               {/* Status and Score */}
@@ -200,7 +209,7 @@ function ExamListPage() {
                 </p>
               ) : (
                 <p className="bg-yellow-100 text-yellow-800 font-bold py-[5px] px-[10px] rounded-lg inline-block mt-[10px]">
-                  Score: N/A
+                  Score: -
                 </p>
               )}
 

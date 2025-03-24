@@ -6,6 +6,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { getExamTestedDetailQuery } from "@/query/exam.query";
 import withAuth from "@/middlewares/withAuth";
+import { convertDateToEN } from "@/utils/util.function";
 
 // Data Type Definitions
 interface Option {
@@ -31,6 +32,7 @@ function ExamDetailPage() {
   const [examDetail, setExamDetail] = useState<ExamDetail2[] | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false); // Status of exam completion
+  const [finishAt, setFinishAt] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchExamDetail = async () => {
@@ -39,6 +41,11 @@ function ExamDetailPage() {
         const data = await getExamTestedDetailQuery(examID);
         setExamDetail(data?.exam_detail);
         setIsCompleted(data?.is_completed);
+
+        if (data?.exam_detail && data.exam_detail.length > 0) {
+          setFinishAt(data.exam_detail[0].finish_at);
+        }
+
       } catch (error) {
         console.error("Error fetching exam detail:", error);
       } finally {
@@ -77,10 +84,20 @@ function ExamDetailPage() {
           Vocabulary and Grammar Exam
         </h1>
         {isCompleted && (
-          <p className="text-gray-600 mt-2">
-            <span className="font-semibold text-xl">Score:</span> <span className="text-xl">{correctAnswers} /{" "}
-            {totalQuestions}</span> 
+          <div className="mt-4 text-gray-600">
+          <p className="mt-2">
+            <span className="font-semibold text-xl">Submitted:</span>{" "}
+            <span className="text-xl">
+              {finishAt && convertDateToEN(finishAt)}
+            </span>
+            </p>
+            <p className="mt-2">
+            <span className="font-semibold text-xl">Score:</span>{" "}
+            <span className="text-xl">
+              {correctAnswers} / {totalQuestions}
+            </span>
           </p>
+          </div>
         )}
       </div>
 

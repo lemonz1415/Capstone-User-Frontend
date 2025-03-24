@@ -27,14 +27,14 @@ const QuestionContent = React.memo(
       <>
         {/* คำถาม */}
         <p
-          className="text-lg font-medium text-gray-800 break-words overflow-wrap"
+          className="text-lg font-medium text-gray-800 break-words overflow-wrap line-clamp-3"
           style={{ wordWrap: "break-word" }}
         >
           {currentQuestion.question_text}
         </p>
 
         {/* ตัวเลือก */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 max-h-[250px] overflow-y-auto">
           {currentQuestion.options.map((option: any) => (
             <button
               key={option.option_id}
