@@ -95,18 +95,6 @@ export const verifyEmailOtpQuery = async (email: string, code: string) => {
   }
 };
 
-//   export const resendOtpQuery = async (email: string) => {
-//     try {
-//       // เนื่องจาก backend ไม่มี API สำหรับ resend OTP โดยตรง
-//       // เราจะใช้ register API อีกครั้งโดยส่งเฉพาะ email
-//       const response = await axios.post(`${HOST_URL}/api/auth/register`, { email, resend: true });
-//       return response?.data;
-//     } catch (error) {
-//       console.error("Error resending OTP:", error);
-//       throw error;
-//     }
-//   };
-
 export const fetchUserInfoQuery = async (user_id: any) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
@@ -115,9 +103,8 @@ export const fetchUserInfoQuery = async (user_id: any) => {
       throw new Error("No access token found. Please log in again.");
     }
 
-    const response = await axios.post(
-      `${HOST_URL}/api/auth/me`,
-      { user_id: user_id }, // request body
+    const response = await axios.get(
+      `${HOST_URL}/api/auth/${user_id}/me`,
       {
         // config object
         headers: {

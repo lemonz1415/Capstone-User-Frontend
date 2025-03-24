@@ -24,7 +24,7 @@ export default function RootLayout({
       <body>
       <AuthProvider>
       <ModalProvider>
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col pt-[72px] pb-[48px]">
           <Navbar />
           <main className="flex-grow">
             {children}

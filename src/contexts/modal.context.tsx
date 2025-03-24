@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Modal from "@/components/modal";
-
 interface ModalContextType {
   isOpen: boolean;
   title: string;
@@ -32,6 +31,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [cancelText, setCancelText] = useState<string | undefined>();
   const [onConfirm, setOnConfirm] = useState<(() => void) | undefined>();
   const [isExpired, setIsExpired] = useState<boolean>(false); // เพิ่ม State สำหรับ Session หมดอายุ
+
   const pathname = usePathname();
   const prevPathRef = useRef(pathname);     // เก็บค่า path ก่อนหน้าไว้เพื่อตรวจสอบการเปลี่ยนหน้า    
 
@@ -73,7 +73,22 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
         prevPathRef.current !== pathname) {
       // ไม่ต้องทำอะไร - ให้ withAuth จัดการแสดง Modal
     } 
-    else if (hasToken && 
+
+    if (pathname === "/auth/verify-email") {
+      const isRegistered = sessionStorage.getItem("isRegistered");
+      if (!isRegistered && prevPathRef.current !== "/auth/verify-email") {
+        openModal(
+          "Access Restricted",
+          "This page is no longer accessible after email verification. Please log in to continue.",
+          "Go to Login",
+          undefined,
+          () => window.location.href = "/auth/login",
+          false
+        );
+      }
+    }
+
+    if (hasToken && 
             (pathname === "/exam" || pathname.startsWith("/exam/"))) {
           closeModal();
         }

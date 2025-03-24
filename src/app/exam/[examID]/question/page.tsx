@@ -232,7 +232,7 @@ useEffect(() => {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center mt-6 max-w-3xl mx-auto gap-4">
+      <div className="flex justify-between items-center mt-4 max-w-3xl mx-auto gap-4">
         {/* Previous Button */}
         <button
           onClick={handlePrevious}

@@ -17,7 +17,6 @@ function VerifyEmailPage() {
 
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-//   const [isResending, setIsResending] = useState(false);
   const [isVerified, setIsVerified] = useState(false); // State สำหรับสถานะ Verify สำเร็จ
   const [errorMessage, setErrorMessage] = useState(""); // State สำหรับข้อความ Error
   const [isModalOpen, setIsModalOpen] = useState(false); 
@@ -25,10 +24,10 @@ function VerifyEmailPage() {
     // ตรวจสอบสิทธิ์การเข้าถึง
     useEffect(() => {
         const isRegistered = sessionStorage.getItem("isRegistered");
-        if (!isRegistered) {
+        if (!isRegistered && !isVerified) {
           setIsModalOpen(true);
         }
-      }, [email]);
+      }, [email, isVerified]);
 
   const handleVerify = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -38,6 +37,7 @@ function VerifyEmailPage() {
       const response: any = await verifyEmailOtpQuery(email, otp);
       if (response.success) {
         setIsVerified(true); // ตั้งค่าเป็น Verified
+        sessionStorage.removeItem("isRegistered"); // ลบ isRegistered ออกจาก Session Storage หลัง verify สำเร็จแล้ว ป้องกันไม่ให้ user เข้าถึงหน้านี้ได้อีก
         toast.success(response.message || "Email verified successfully!");
         setTimeout(() => router.push("/auth/login"), 2000); // Redirect to login after success
       }
@@ -49,21 +49,6 @@ function VerifyEmailPage() {
     }
   };
 
-//   const handleResendOtp = async () => {
-//     setIsResending(true);
-//     try {
-//       const response: any = await resendOtpQuery(email);
-//       if (response.success) {
-//         toast.success(response.message || "OTP sent successfully!");
-//       }
-//     } catch (error: any) {
-//       console.error("Resend OTP error:", error);
-//       toast.error(error.message || "Failed to resend OTP. Please try again.");
-//     } finally {
-//       setIsResending(false);
-//     }
-//   };
-
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center"
@@ -74,11 +59,11 @@ function VerifyEmailPage() {
       <Toaster position="top-right" />
       <Modal
         isOpen={isModalOpen}
-        onClose={() => router.push("/auth/register")}
-        title="Unauthorized Access"
-        message="You must register first before accessing this page."
-        confirmText="Go to Register"
-        onConfirmFetch={() => router.push("/auth/register")}
+        onClose={() => router.push("/auth/login")}
+        title="Access Restricted"
+        message="This page is no longer accessible after email verification. Please log in to continue."
+        confirmText="Go to Login"
+        onConfirmFetch={() => router.push("/auth/login")}
         icon={faExclamationTriangle}
         iconColor="text-white"
         actionType="delete"
@@ -172,22 +157,6 @@ function VerifyEmailPage() {
                 )}
               </button>
             </form>
-
-            {/* Resend OTP */}
-            {/* <div className="mt-4 text-center">
-              <p className="text-gray-600">
-                Didn't receive the OTP?{" "}
-                <button
-                  onClick={handleResendOtp}
-                  disabled={isResending}
-                  className={`text-blue-500 hover:underline ${
-                    isResending ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isResending ? "Resending..." : "Resend"}
-                </button>
-              </p>
-            </div> */}
           </>
         )}
       </div>
