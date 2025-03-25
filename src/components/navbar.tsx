@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/auth.context";
 import { useModal } from "@/contexts/modal.context";
 import toast, { Toaster } from "react-hot-toast";
 import { fetchUserInfoQuery } from "@/query/auth.query";
-import { lowerCase } from "lodash";
 
 export default function Navbar() {
   const router = useRouter();
@@ -89,7 +88,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-6 font-semibold">
           {MENU.map((menu) => (
             <button
-              key={`menu_${lowerCase(menu?.title)}`}
+              key={`menu_${(menu?.title).toLowerCase()}`}
               onClick={() => router.push(menu.path)}
               className={`relative px-4 py-3 hover:text-blue-200 ${
                 isActive(menu.path)
@@ -121,7 +120,6 @@ export default function Navbar() {
                   />
                   <span className="hidden md:inline font-bold">{userName}</span>
                 </button>
-
 
                 {/* Dropdown Menu (แสดงเมื่อ Hover) */}
                 {isDropdownOpen && (
