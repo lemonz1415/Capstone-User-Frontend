@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import "../styles/globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import { config } from '@fortawesome/fontawesome-svg-core';
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
 import { AuthProvider } from "@/contexts/auth.context";
 import { ModalProvider } from "@/contexts/modal.context";
 
-config.autoAddCss = false; 
+config.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: "ExamPrep Platform",
-  description: "Practice and enhance your skills with our comprehensive question bank",
+  description:
+    "Practice and enhance your skills with our comprehensive question bank",
 };
 
 export default function RootLayout({
@@ -22,16 +23,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      <AuthProvider>
-      <ModalProvider>
-        <div className="min-h-screen flex flex-col pt-[72px] pb-[48px]">
-          <Navbar />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </div>
-        </ModalProvider>
+        <AuthProvider>
+          <ModalProvider>
+            <div className="min-h-screen flex flex-col pt-[72px] pb-[48px]">
+              <Navbar />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </div>
+          </ModalProvider>
         </AuthProvider>
       </body>
     </html>

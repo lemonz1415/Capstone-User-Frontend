@@ -13,9 +13,13 @@ import {
 
 import { Select, SelectItem } from "@heroui/react";
 import {
+  getAllSkillQuery,
   getExamTestedStatQuery,
   getExamTestedSummarizeQuery,
 } from "@/query/exam.query";
+import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
 
 // Register necessary chart.js components
 ChartJS.register(
@@ -36,6 +40,7 @@ interface StatType {
 }
 
 function Dashboard() {
+  const router = useRouter();
   const [fetchData, setFetchData] = useState<any>();
   const [stat, setStat] = useState<StatType>();
   const [isLoading, setIsLoading] = useState(true);
@@ -72,11 +77,29 @@ function Dashboard() {
     fetchStat();
   }, []);
 
-  const skillSelect = [
-    { key: "", label: "All" },
-    { key: "Grammar", label: "Grammar" },
-    { key: "Vocabulary", label: "Vocabulary" },
-  ];
+  const [skillOption, setSkillOtion] = useState<any>([]);
+  useEffect(() => {
+    const fetchSkillOption = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getAllSkillQuery();
+        const formatSkill = [
+          { key: "", label: "All" },
+          ...response.skill.map((skill: any) => ({
+            key: skill.skill_name,
+            label: skill.skill_name,
+          })),
+        ];
+        setSkillOtion(formatSkill);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchSkillOption();
+  }, []);
 
   const dataFilterBySkill = (skill: string) => {
     return fetchData?.filter((item: any) => item.skills === skill);
@@ -85,22 +108,38 @@ function Dashboard() {
   const groupedData = () => {
     if (isLoading || !fetchData?.length) return {};
 
-    const filteredData = fetchData[0]?.skill
+    const filteredData = fetchData[0]?.skills
       ? dataFilterBySkill(skill)
       : fetchData;
+    const result = filteredData.reduce((acc: any, exam: any) => {
+      // สร้าง key โดยรวม test และ submitted_date
+      const date = new Date(exam.submitted_date);
+      const formattedDate = new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }).format(date);
 
-    return filteredData.reduce((acc: any, item: any) => {
-      if (!acc[item.test]) {
-        acc[item.test] = {
-          correct: parseFloat(item.percentage),
-        };
-      }
+      const key = `${exam.test}, ${formattedDate}`; // ใช้วันที่ที่ได้จากการ format
+
+      // แปลง percentage เป็นตัวเลข
+      const correct = parseFloat(exam.percentage.replace("%", ""));
+
+      // เก็บค่าลงใน accumulator โดยใช้ key เป็นตัวระบุ
+      acc[key] = { correct };
+
       return acc;
     }, {});
+
+    return result;
   };
 
   const labels = Object.keys(groupedData());
   const correctPercentages = labels.map((test) => groupedData()[test].correct);
+  const isShowChart = !isLoading
+    ? !isLoading &&
+      (fetchData[0].submitted_date === null || fetchData.length === 0)
+    : false;
 
   const data = {
     labels: labels,
@@ -115,15 +154,13 @@ function Dashboard() {
     ],
   };
 
-  console.log(data);
-
   // Options for the Bar Chart
   const options = {
     responsive: true,
     plugins: {
       title: {
         display: true,
-        text: "Performance for Each Test",
+        text: `Performance for ${skill === "" ? "All" : skill} Skill`,
       },
       tooltip: {
         callbacks: {
@@ -134,25 +171,31 @@ function Dashboard() {
     },
     scales: {
       y: {
-        beginAtZero: true, // Start y-axis at 0
-        max: 100, // Max value for y-axis
+        beginAtZero: true,
+        max: 100,
         ticks: {
-          stepSize: 20, // Interval between ticks
+          stepSize: 20,
         },
+      },
+      x: {
+        ticks: {
+          autoSkip: false,
+        },
+        grid: {
+          offset: true,
+        },
+        barThickness: 30,
       },
     },
   };
 
   return (
     <div className="flex flex-col p-6 bg-blue-50 h-screen">
-      {/* Dashboard Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-blue-800">Dashboard User</h2>
       </div>
 
-      {/* Cards for Total Exams, Total Questions, Correct Score, Percentage Score */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        {/* Card 1: Total Exams */}
         <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
           <h3 className="text-lg text-white font-semibold">Total Exams</h3>
           <p className="text-3xl font-bold text-white">
@@ -160,7 +203,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Card 2: Total Questions */}
         <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
           <h3 className="text-lg text-white font-semibold">Total Questions</h3>
           <p className="text-3xl font-bold text-white">
@@ -168,7 +210,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Card 3: Correct Score / Total Score */}
         <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
           <h3 className="text-lg text-white font-semibold">
             Correct Score / Total Score
@@ -178,7 +219,6 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Card 4: Percentage Score */}
         <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
           <h3 className="text-lg text-white font-semibold">Percentage Score</h3>
           <p
@@ -193,11 +233,10 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Charts and Graphs */}
-      <div className="grid grid-cols-4 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-blue-200 w-full">
+      <div className="grid grid-cols-4 gap-6">
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-blue-200 w-full col-start-2 col-span-2">
           <h4 className="text-lg font-semibold text-blue-800 mb-2">
-            Bar Chart
+            Performance Overview
           </h4>
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Select
@@ -206,16 +245,37 @@ function Dashboard() {
               color="primary"
               onChange={(e) => setSkill(e.target.value)}
             >
-              {skillSelect.map((skill) => (
+              {skillOption.map((skill: any) => (
                 <SelectItem className="text-black" key={skill.key}>
                   {skill.label}
                 </SelectItem>
               ))}
             </Select>
           </div>
-          <div className="h-64 w-full rounded-lg">
-            <Bar data={data} options={options} /> {/* Render Bar Chart here */}
-          </div>
+
+          {/* ตรวจสอบว่า correctPercentage มีค่าเป็น 0 หรือไม่ */}
+          {isShowChart ? (
+            <div className="flex flex-col justify-center items-center h-[400px] w-full rounded-lg text-center">
+              <p className="text-lg text-gray-600 mb-4">
+                No exam tested found.
+              </p>
+              <p className="text-sm text-gray-500">
+                Data will be updated once at least one exam set is completed.
+              </p>
+              <button
+                onClick={() => router.push("/exam/new")}
+                className="bg-blue-500 text-white mt-4 px-6 py-2 rounded-lg hover:bg-blue-600 hover:scale-105 transform transition-all duration-300 ease-in-out flex items-center justify-center space-x-2"
+              >
+                {/* ใช้ Font Awesome icon */}
+                <FontAwesomeIcon icon={faClipboardList} className="w-5 h-5" />
+                <span>Start your first exam</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-[400px] w-full rounded-lg">
+              <Bar data={data} options={options} />
+            </div>
+          )}
         </div>
       </div>
     </div>

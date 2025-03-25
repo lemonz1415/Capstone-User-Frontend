@@ -201,3 +201,7 @@ export const getExamTestedSummarizeQuery = async (skill?: string) => {
 export const getExamTestedStatQuery = async () => {
   return await fetchWithAuth(`/api/dashboard/stat`, "GET");
 };
+
+export const getAllSkillQuery = async () => {
+  return await fetchWithAuth(`/api/dashboard/skill`, "GET");
+};
