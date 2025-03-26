@@ -52,16 +52,6 @@ const fetchWithAuth = async (url: string, method: string, data?: any) => {
     }
   };
 
-// export const getAllExamLogIDQuery = async () => {
-//   try {
-//     const response = await axios.get(`${HOST_URL}/api/exam/examID`);
-//     return response?.data?.exams || [];
-//   } catch (error) {
-//     console.error("Error fetching exams:", error);
-//     return [];
-//   }
-// };
-
 export const getAllExamLogIDQuery = async (user_id: number) => {
     try {
       const response = await fetchWithAuth(`/api/exam/${user_id}/all`, "GET");
@@ -72,59 +62,31 @@ export const getAllExamLogIDQuery = async (user_id: number) => {
     }
   };
 
-// export const generateRandomExamQuery = async (user_id: number) => {
-//   try {
-//     const response = await axios.post(`${HOST_URL}/api/exam/random`, {
-//       user_id,
-//     });
-//     return response?.data; // คืนค่า exam_id
-//   } catch (error) {
-//     console.error("Error generating random exam:", error);
-//     throw error;
-//   }
-// };
-
-  export const generateRandomExamQuery = async (user_id: number) => {
+export const generateRandomExamQuery = async (user_id: number) => {
     return await fetchWithAuth("/api/exam/random", "POST", { user_id });
   };
 
-// export const getQuestionDetailQuery = async (
-//   exam_id: number,
-//   index: number
-// ) => {
-//   try {
-//     const response = await axios.post(`${HOST_URL}/api/exam/question`, {
-//       exam_id,
-//       index,
-//     });
-//     return response?.data?.question; // คืนค่าข้อมูลคำถาม
-//   } catch (error) {
-//     console.error("Error fetching question detail:", error);
-//     throw error;
-//   }
-// };
-  
-// export const getQuestionDetailQuery = async (exam_id: number, index: number) => {
-//     return await fetchWithAuth("/api/exam/question", "POST", { exam_id, index });
-//   };
-  
-// export const updateSelectedOptionQuery = async (
-//   exam_id: number,
-//   question_id: number,
-//   option_id: number
-// ) => {
-//   try {
-//     const response = await axios.put(`${HOST_URL}/api/exam/select`, {
-//       exam_id,
-//       question_id,
-//       option_id,
-//     });
-//     return response?.data;
-//   } catch (error) {
-//     console.error("Error updating selected option:", error);
-//     throw error;
-//   }
-// };
+export const generateCustomExamQuery = async (user_id: number, skills: any[]) => {
+    try {
+      
+      // กรองเฉพาะฟิลด์ skill_id และ question_count
+    const formattedSkills = skills
+    .filter((skill) => skill.question_count > 0) // ส่งเฉพาะ Skill ที่มีจำนวนคำถาม > 0
+    .map((skill) => ({
+      skill_id: skill.skill_id,
+      question_count: skill.question_count,
+    }));
+
+      const response = await fetchWithAuth("/api/exam/custom", "POST", {
+        user_id, 
+        skills: formattedSkills,
+      });
+      return response?.exam_id || null; 
+    } catch (error) {
+      console.error("Error generating custom exam:", error);
+      throw error;
+    }
+  };
 
 export const updateSelectedOptionQuery = async (
     exam_id: number,
@@ -133,19 +95,6 @@ export const updateSelectedOptionQuery = async (
   ) => {
     return await fetchWithAuth("/api/exam/select", "PUT", { exam_id, question_id, option_id });
   };
-  
-
-// export const getCountQuestionByExamIDQuery = async (exam_id: number) => {
-//   try {
-//     const response = await axios.post(`${HOST_URL}/api/exam/question/count`, {
-//       exam_id,
-//     });
-//     return response?.data?.question_count || 0; // คืนค่าจำนวนคำถาม
-//   } catch (error) {
-//     console.error("Error fetching question count:", error);
-//     throw error;
-//   }
-// };
 
 export const getCountQuestionByExamIDQuery = async (exam_id: number) => {
     try {
@@ -156,33 +105,21 @@ export const getCountQuestionByExamIDQuery = async (exam_id: number) => {
       throw error;
     }
   };
-// export const getExamScoreQuery = async (exam_id: number) => {
-//   try {
-//     const response = await axios.put(`${HOST_URL}/api/exam/submit`, {
-//       exam_id,
-//     });
-//     return response?.data; // คืนค่าข้อมูลคะแนน
-//   } catch (error) {
-//     console.error("Error fetching exam score:", error);
-//     throw error;
-//   }
-// };
-  
+
 export const getExamScoreQuery = async (exam_id: number) => {
     return await fetchWithAuth(`/api/exam/${exam_id}/submit`, "PUT");
   };
-
-// export const getExamTestedDetailQuery = async (body: { exam_id: number }) => {
-//   try {
-//     const response = await axios.post(`${HOST_URL}/api/exam/history`, body);
-//     return response?.data || [];
-//   } catch (error) {
-//     console.error("Error fetching exam detail:", error);
-//     throw error;
-//   }
-// };
 
 export const getExamTestedDetailQuery = async (exam_id: number) => {
     return await fetchWithAuth(`/api/exam/${exam_id}/detail`, "GET");
   };
 
+export const getAllSkillsQuery = async () => {
+    try {
+      const response = await fetchWithAuth("/api/dashboard/skill", "GET");
+      return response?.skill || [];
+    } catch (error) {
+      console.error("Error fetching skills:", error);
+      throw error;
+    }
+  };
