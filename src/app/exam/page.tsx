@@ -35,14 +35,14 @@ function ExamListPage() {
       setIsLoading(true);
       try {
         if (!userId) {
-            console.error("User ID not found");
-            return;
-          }
+          console.error("User ID not found");
+          return;
+        }
 
         const data = await getAllExamLogIDQuery(userId); // เรียก API ดึงข้อมูล Exam
 
         // จัดเรียงข้อมูลตามวันที่ create_at (ใหม่ -> เก่า)
-        const sortedData = data.sort((a, b) => {
+        const sortedData = data.sort((a: any, b: any) => {
           const aDate = a.is_completed
             ? new Date(a.finish_at).getTime()
             : new Date(a.attempt_at || a.create_at).getTime();
@@ -134,7 +134,8 @@ function ExamListPage() {
           {/* Tooltip */}
           {inProgressCount >= 5 && (
             <div className="absolute top-[110%] left-[-325%] bg-red-500 text-white text-sm rounded-md px-3 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              You cannot create a new exam. You can have no more than 5 in-progress exams.
+              You cannot create a new exam. You can have no more than 5
+              in-progress exams.
             </div>
           )}
         </div>
@@ -182,9 +183,7 @@ function ExamListPage() {
               </div>
 
               {/* Title */}
-              <h2 className="text-xl font-bold text-[#0066FF] mb-2">
-                Exam
-              </h2>
+              <h2 className="text-xl font-bold text-[#0066FF] mb-2">Exam</h2>
 
               {/* Date and Time */}
               <p className="text-gray-600 mb-2">
