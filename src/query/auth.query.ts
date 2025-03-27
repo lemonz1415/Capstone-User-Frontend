@@ -110,7 +110,7 @@ export const fetchUserInfoQuery = async (user_id: any) => {
         "Content-Type": "application/json",
       },
     });
-    return response?.data?.user?.[0] || null;
+    return response?.data?.user || null;
   } catch (error) {
     console.error("Error fetching user info:", error);
     throw error;
