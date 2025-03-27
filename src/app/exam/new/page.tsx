@@ -31,7 +31,7 @@ import {
   generateRandomExamQuery,
   generateCustomExamQuery,
   getAllExamLogIDQuery,
-  getAllSkillsQuery
+  getAllSkillsQuery,
 } from "@/query/exam.query";
 import withAuth from "@/middlewares/withAuth";
 import { useAuth } from "@/contexts/auth.context";
@@ -50,7 +50,6 @@ interface Skill {
 }
 
 function NewExamPage() {
-
   const iconMap = {
     Vocabulary: faBook,
     Tenses: faClock,
@@ -149,6 +148,8 @@ function NewExamPage() {
   const [isBlocked, setIsBlocked] = useState(false); // บล็อกการเข้าถึง
   const { userId } = useAuth();
 
+  const MAX_TOTAL_QUESTIONS = 100;
+
   const totalQuestions = skills.reduce(
     (sum, skill) => sum + skill.question_count,
     0
@@ -179,27 +180,45 @@ function NewExamPage() {
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const skillsData: Skill[] = await getAllSkillsQuery(); 
+        const skillsData: Skill[] = await getAllSkillsQuery();
         const mappedSkills = skillsData.map((skill) => ({
           ...skill,
-          icon: iconMap[skill.skill_name as keyof typeof iconMap] || faQuestionCircle, 
-          question_count: 0, 
-          description: descriptionMap[skill.skill_name as keyof typeof descriptionMap] || "",
-          example: exampleMap[skill.skill_name as keyof typeof exampleMap] || { question: "", choices: null },
-          showExample: false, 
+          icon:
+            iconMap[skill.skill_name as keyof typeof iconMap] ||
+            faQuestionCircle,
+          question_count: 0,
+          description:
+            descriptionMap[skill.skill_name as keyof typeof descriptionMap] ||
+            "",
+          example: exampleMap[skill.skill_name as keyof typeof exampleMap] || {
+            question: "",
+            choices: null,
+          },
+          showExample: false,
         }));
-        setSkills(mappedSkills); 
+        setSkills(mappedSkills);
       } catch (error) {
         console.error("Error fetching skills:", error);
       }
     };
-  
+
     fetchSkills();
   }, []);
 
   const handleQuestionCountChange = (skill_id: number, value: string) => {
     // ลบเลข 0 นำหน้าและแปลงเป็นตัวเลข
     const numValue = parseInt(value.replace(/^0+/, "")) || 0;
+
+    // ตรวจสอบว่าจำนวนรวมจะไม่เกิน MAX_TOTAL_QUESTIONS
+    const projectedTotalQuestions = skills.reduce(
+      (sum, skill) =>
+        skill.skill_id === skill_id
+          ? sum + numValue
+          : sum + skill.question_count,
+      0
+    );
+
+    if (projectedTotalQuestions > MAX_TOTAL_QUESTIONS) return; // หยุดการเปลี่ยนแปลงหากเกินขีดจำกัด
 
     setSkills((prevSkills) =>
       prevSkills.map((skill) =>
@@ -227,6 +246,7 @@ function NewExamPage() {
   };
 
   const handleIncrement = (skill_id: number) => {
+    if (totalQuestions >= MAX_TOTAL_QUESTIONS) return;
     setSkills((prevSkills) =>
       prevSkills.map((skill) =>
         skill.skill_id === skill_id
@@ -276,13 +296,13 @@ function NewExamPage() {
         }
       } else if (examType === "custom") {
         const result = await generateCustomExamQuery(userId, skills);
-      if (result) {
-        setGeneratedExamID(result);
-        setIsModalOpen(true);
-      } else {
-        console.error("Failed to generate custom exam");
+        if (result) {
+          setGeneratedExamID(result);
+          setIsModalOpen(true);
+        } else {
+          console.error("Failed to generate custom exam");
+        }
       }
-    }
     } catch (error) {
       console.error("Error starting exam:", error);
     } finally {
@@ -358,23 +378,27 @@ function NewExamPage() {
               )}
               {examType === "custom" && (
                 <div className="mt-4">
-                <ul className="list-disc list-inside">
-                  {/* Custom Skills Header */}
-                  <li>
-                    <strong>Custom Skills:</strong>
-                    {/* Nested List for Skills */}
-                    <ul className="list-disc list-inside ml-6 mt-2">
-                      {skills
-                        .filter((skill) => skill.question_count > 0) // แสดงเฉพาะ Skill ที่มีจำนวนคำถาม > 0
-                        .map((skill) => (
-                          <li key={skill.skill_id} className="text-sm text-gray-600">
-                             <strong>{skill.skill_name}:</strong> {skill.question_count} questions
-                          </li>
-                        ))}
-                    </ul>
-                  </li>
-                </ul>
-              </div>
+                  <ul className="list-disc list-inside">
+                    {/* Custom Skills Header */}
+                    <li>
+                      <strong>Custom Skills:</strong>
+                      {/* Nested List for Skills */}
+                      <ul className="list-disc list-inside ml-6 mt-2">
+                        {skills
+                          .filter((skill) => skill.question_count > 0) // แสดงเฉพาะ Skill ที่มีจำนวนคำถาม > 0
+                          .map((skill) => (
+                            <li
+                              key={skill.skill_id}
+                              className="text-sm text-gray-600"
+                            >
+                              <strong>{skill.skill_name}:</strong>{" "}
+                              {skill.question_count} questions
+                            </li>
+                          ))}
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
               )}
             </ul>
             <p className="mt-6">Are you sure you want to proceed?</p>
@@ -479,9 +503,17 @@ function NewExamPage() {
           >
             Select Number of Questions for Each Skill:
           </label>
-
-          {/* Container สำหรับ Scroll */}
-          <div className="relative border border-gray-300 rounded-lg overflow-y-auto max-h-80">
+          <div
+            className={`sticky top-20 right-20 rounded-lg shadow-md z-10 p-2 my-5 ${
+              totalQuestions >= MAX_TOTAL_QUESTIONS
+                ? "bg-red-500"
+                : "bg-blue-500"
+            } text-white`}
+          >
+            Total Questions: {totalQuestions} / {MAX_TOTAL_QUESTIONS}
+          </div>
+          {/* Container */}
+          <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 items-start">
               {skills.map((skill) => (
                 <div
@@ -529,7 +561,7 @@ function NewExamPage() {
                       {skill.example.choices && (
                         <ul className="mt-2 space-y-2">
                           {skill.example.choices.map((choice, index) => (
-                            <li key={index} className="text-sm text-gray-600">
+                            <li key={choice} className="text-sm text-gray-600">
                               {index + 1}. {choice}
                             </li>
                           ))}
@@ -574,7 +606,12 @@ function NewExamPage() {
                     {/* Increment Button */}
                     <button
                       onClick={() => handleIncrement(skill.skill_id)}
-                      className="px-3 py-2 rounded-lg border bg-blue-500 text-white hover:bg-blue-600"
+                      disabled={totalQuestions >= MAX_TOTAL_QUESTIONS}
+                      className={`px-3 py-2 rounded-lg border ${
+                        totalQuestions >= MAX_TOTAL_QUESTIONS
+                          ? "bg-gray-300 cursor-not-allowed"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
                     >
                       <FontAwesomeIcon icon={faPlus} />
                     </button>
@@ -606,10 +643,14 @@ function NewExamPage() {
         <button
           onClick={handleStartExam}
           disabled={
-            isLoading || (examType === "custom" && totalQuestions === 0)
+            isLoading ||
+            (examType === "custom" &&
+              (totalQuestions === 0 || totalQuestions > MAX_TOTAL_QUESTIONS))
           }
           className={`inline-flex items-center px-6 py-3 rounded-lg font-semibold text-white ${
-            isLoading || (examType === "custom" && totalQuestions === 0)
+            isLoading ||
+            (examType === "custom" &&
+              (totalQuestions === 0 || totalQuestions > MAX_TOTAL_QUESTIONS))
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
           } transition-all`}
