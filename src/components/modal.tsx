@@ -27,7 +27,7 @@ export default function Modal({
   title,
   message,
   confirmText = "Confirm",
-  cancelText = "Cancel",
+  cancelText,
   icon = faQuestion,
   iconColor = "text-white",
   actionType = "default",
@@ -76,7 +76,11 @@ export default function Modal({
             />
           </div>
         </div>
-        <h2 className={`text-2xl font-bold mb-4 ${actionType === "delete" ? "text-red-500" : "text-[#0066FF]"}`}>
+        <h2
+          className={`text-2xl font-bold mb-4 ${
+            actionType === "delete" ? "text-red-500" : "text-[#0066FF]"
+          }`}
+        >
           {title}
         </h2>
         <div className="text-gray-600 mb-10">{message}</div>
@@ -102,13 +106,15 @@ export default function Modal({
           ) : (
             <>
               {/* ปุ่ม Cancel */}
-              <button
-                onClick={onClose}
-                className="px-8 py-2 bg-gray-300 rounded-md text-gray-800 hover:bg-gray-400"
-                disabled={isLoading}
-              >
-                {isPreview ? "Close" : cancelText}
-              </button>
+              {cancelText && (
+                <button
+                  onClick={onClose}
+                  className="px-8 py-2 bg-gray-300 rounded-md text-gray-800 hover:bg-gray-400"
+                  disabled={isLoading}
+                >
+                  {isPreview ? "Close" : cancelText}
+                </button>
+              )}
 
               {/* ปุ่ม Confirm */}
               {(isPreview || (!isPreview && confirmText)) && (

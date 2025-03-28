@@ -1,5 +1,6 @@
 import axios from "axios";
 import { refreshAccessToken } from "@/query/auth.query";
+import { body } from "framer-motion/client";
 
 const HOST_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -61,8 +62,14 @@ export const getAllExamLogIDQuery = async (user_id: number) => {
   }
 };
 
-export const generateRandomExamQuery = async (user_id: number) => {
-  return await fetchWithAuth("/api/exam/random", "POST", { user_id });
+export const generateRandomExamQuery = async (
+  user_id: number,
+  question_count: number
+) => {
+  return await fetchWithAuth("/api/exam/random", "POST", {
+    user_id,
+    question_count,
+  });
 };
 
 export const generateCustomExamQuery = async (
@@ -143,6 +150,24 @@ export const getAllSkillsQuery = async () => {
     return response?.skill || [];
   } catch (error) {
     console.error("Error fetching skills:", error);
+    throw error;
+  }
+};
+
+export const getAIExplanation = async (message: {
+  question: any;
+  choices: any;
+}) => {
+  console.log(message);
+  try {
+    const response = await axios.post(`${HOST_URL}/api/exam/chat`, {
+      question: message.question,
+      choices: message.choices,
+    });
+
+    return response.data.message;
+  } catch (error) {
+    console.log(error);
     throw error;
   }
 };

@@ -286,7 +286,7 @@ function NewExamPage() {
       }
 
       if (examType === "random") {
-        const result = await generateRandomExamQuery(userId);
+        const result = await generateRandomExamQuery(userId, numberOfQuestions);
 
         if (result?.success && result.exam_id) {
           setGeneratedExamID(result.exam_id);
@@ -361,6 +361,10 @@ function NewExamPage() {
         onClose={() => setIsModalOpen(false)}
         onConfirmFetch={handleConfirmStart}
         title="Preview Exam Settings"
+        confirmText="Confirm"
+        cancelText="Cancel"
+        actionType="default"
+        isPreview={true}
         message={
           <>
             <p>
@@ -404,10 +408,6 @@ function NewExamPage() {
             <p className="mt-6">Are you sure you want to proceed?</p>
           </>
         }
-        confirmText="Confirm"
-        cancelText="Cancel"
-        actionType="default"
-        isPreview={true}
       />
 
       {/* Back Button */}

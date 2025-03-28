@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAllExamLogIDQuery, getExamScoreQuery } from "@/query/exam.query";
+import { getAllExamLogIDQuery } from "@/query/exam.query";
 import withAuth from "@/middlewares/withAuth";
 interface Exam {
   exam_id: string;
@@ -12,6 +12,8 @@ interface Exam {
   attempt_at: string | null;
   time_taken: string | null;
   is_completed: boolean;
+  score: number;
+  total: number;
 }
 import { useAuth } from "@/contexts/auth.context";
 import { convertDateToEN } from "@/utils/util.function";
@@ -19,9 +21,6 @@ import { convertDateToEN } from "@/utils/util.function";
 function ExamListPage() {
   const router = useRouter();
   const [exams, setExams] = useState<Exam[]>([]); // State สำหรับเก็บข้อมูล Exam
-  const [scores, setScores] = useState<{
-    [key: string]: { correct: number; total: number };
-  }>({}); // เก็บ Score ของแต่ละ Exam
   const [isLoading, setIsLoading] = useState(true); // State สำหรับ Loading
   const isNoExams = !isLoading && exams.length === 0;
   const { userId } = useAuth();
@@ -53,37 +52,6 @@ function ExamListPage() {
         });
 
         setExams(sortedData);
-
-        // Fetch คะแนนสำหรับ Exam ที่เสร็จแล้ว
-        const completedExams = data.filter((exam: Exam) => exam.is_completed);
-        const scoresData = await Promise.all(
-          completedExams.map(async (exam: Exam) => {
-            try {
-              const scoreData = await getExamScoreQuery(parseInt(exam.exam_id));
-              return { exam_id: exam.exam_id, scoreData };
-            } catch (error) {
-              console.error(
-                `Error fetching score for exam ${exam.exam_id}:`,
-                error
-              );
-              return {
-                exam_id: exam.exam_id,
-                scoreData: { correct: 0, total: "N/A" },
-              };
-            }
-          })
-        );
-
-        // แปลงข้อมูลคะแนนให้อยู่ในรูปแบบ Object
-        const scoresObject = scoresData.reduce(
-          (acc, { exam_id, scoreData }) => {
-            acc[exam_id] = scoreData;
-            return acc;
-          },
-          {} as { [key: string]: { correct: number; total: number } }
-        );
-
-        setScores(scoresObject);
       } catch (error) {
         console.error("Error fetching exams:", error);
       } finally {
@@ -203,8 +171,7 @@ function ExamListPage() {
               {/* Status and Score */}
               {exam.is_completed ? (
                 <p className="bg-green-100 text-green-800 font-bold py-[5px] px-[10px] rounded-lg inline-block mt-[10px]">
-                  Score: {scores[exam.exam_id]?.correct || 0} /{" "}
-                  {scores[exam.exam_id]?.total || "N/A"}
+                  Score: {exam.score || 0} / {exam.total || "N/A"}
                 </p>
               ) : (
                 <p className="bg-yellow-100 text-yellow-800 font-bold py-[5px] px-[10px] rounded-lg inline-block mt-[10px]">

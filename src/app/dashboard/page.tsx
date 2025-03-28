@@ -136,10 +136,7 @@ function Dashboard() {
 
   const labels = Object.keys(groupedData());
   const correctPercentages = labels.map((test) => groupedData()[test].correct);
-  const isShowChart = !isLoading
-    ? !isLoading &&
-      (fetchData[0].submitted_date === null || fetchData.length === 0)
-    : false;
+  const isShowChart = Number(stat?.total_exam_tested) === 0;
 
   const data = {
     labels: labels,
