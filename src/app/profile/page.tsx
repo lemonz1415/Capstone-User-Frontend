@@ -235,7 +235,7 @@ function ProfilePage() {
             <h2 className="text-xl font-bold text-blue-700">
               User Information
             </h2>
-            <button
+            {/* <button
               className="text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1 transition-colors"
               onClick={() => {}}
             >
@@ -243,7 +243,7 @@ function ProfilePage() {
                 <FontAwesomeIcon icon={faPen} className="text-sm mr-1" />
                 Edit Info
               </span>
-            </button>
+            </button> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -10,8 +10,8 @@ interface AuthContextType {
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
   getUserId: () => number | null;
+  sessionExpiredReason: "notLoggedIn" | "tokenExpired" | null;
 }
-
 // กำหนดโครงสร้างของ JWT Payload
 interface JwtPayload {
     email: string;
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true); 
   const [userId, setUserId] = useState<number | null>(null);
+  const [sessionExpiredReason, setSessionExpiredReason] = useState<"notLoggedIn" | "tokenExpired" | null>(null);
   const pathname = usePathname();
 
     // ฟังก์ชันสำหรับดึง user_id จาก token
@@ -51,17 +52,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const validateTokens = () => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
+    const isAuthenticated = sessionStorage.getItem("isAuthenticated");
 
     // ตรวจสอบ Access Token
     if (accessToken && isTokenValid(accessToken)) {
       setIsLoggedIn(true);
       const extractedUserId = getUserIdFromToken(accessToken);
       setUserId(extractedUserId);
-
+      setSessionExpiredReason(null);
+      sessionStorage.setItem("isAuthenticated", "true");
     } else {
       localStorage.removeItem("accessToken");
       setIsLoggedIn(false);
       setUserId(null);
+
+      // ตรวจสอบสถานะการ Login ก่อนหน้า
+      if (isAuthenticated) {
+        setSessionExpiredReason("tokenExpired");
+        sessionStorage.removeItem("isAuthenticated"); // ลบ flag เมื่อหมดอายุ
+      } else {
+        setSessionExpiredReason("notLoggedIn");
+      }
     }
 
     // ตรวจสอบ Refresh Token
@@ -69,28 +80,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.removeItem("refreshToken"); // ลบ Refresh Token ที่หมดอายุออก
     }
   };
-
-//   useEffect(() => {
-//     if (typeof window !== "undefined") {
-//       const accessToken = localStorage.getItem("accessToken");
-//       const refreshToken = localStorage.getItem("refreshToken");
-
-//       // ตรวจสอบ Access Token
-//       if (accessToken && isTokenValid(accessToken)) {
-//         setIsLoggedIn(true);
-//       } else {
-//         localStorage.removeItem("accessToken");
-//         setIsLoggedIn(false);
-//       }
-
-//       // ตรวจสอบ Refresh Token
-//       if (refreshToken && !isTokenValid(refreshToken)) {
-//         localStorage.removeItem("refreshToken"); // ลบ Refresh Token ที่หมดอายุออก
-//       }
-
-//       setIsLoading(false); // การตรวจสอบเสร็จสิ้น
-//     }
-//   }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -108,6 +97,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (accessToken: string, refreshToken: string) => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
+    sessionStorage.setItem("isAuthenticated", "true");
     const extractedUserId = getUserIdFromToken(accessToken);
     setUserId(extractedUserId);
     setIsLoggedIn(true);
@@ -116,12 +106,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("isAuthenticated");
     setIsLoggedIn(false); // อัปเดตสถานะการ Logout
     setUserId(null)
   };
-
+    
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isLoading,userId, login, logout, getUserId }}>
+    <AuthContext.Provider value={{ isLoggedIn, isLoading, userId, login, logout, getUserId, sessionExpiredReason }}>
       {children}
     </AuthContext.Provider>
   );
