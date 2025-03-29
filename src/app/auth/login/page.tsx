@@ -60,7 +60,7 @@ function LoginPage() {
       const response = await loginUserQuery(userData);
       if (response.success) {
         login(response.accessToken, response.refreshToken);
-
+        sessionStorage.setItem("isAuthenticated", "true");
         sessionStorage.setItem("justLoggedIn", "true");
         toast.success(response.message || "Login successful!");
         setTimeout(() => router.push("/exam"), 1000);
@@ -205,13 +205,6 @@ function LoginPage() {
               </p>
             )}
           </div>
-
-          {/* Forgot Password */}
-          {/* <div className="mb-4 text-right">
-            <a href="/auth/forgot-password" className="text-sm text-blue-500 hover:underline">
-              Forgot password?
-            </a>
-          </div> */}
 
           {/* Submit Button */}
           <button

@@ -13,12 +13,21 @@ import { useModal } from "@/contexts/modal.context";
 import toast, { Toaster } from "react-hot-toast";
 import { fetchUserInfoQuery } from "@/query/auth.query";
 
+interface User {
+  user_id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  create_at: string;
+  update_at: string;
+}
+
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isLoggedIn, logout } = useAuth();
   const { closeModal } = useModal();
-  const [userName, setUserName] = useState<string>("My Account");
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userId } = useAuth();
 
@@ -36,11 +45,8 @@ export default function Navbar() {
     const fetchUserInfo = async () => {
       if (isLoggedIn && userId) {
         try {
-          const userInfo = await fetchUserInfoQuery(userId);
-          if (userInfo && userInfo.firstname) {
-            // แสดงชื่อและนามสกุลของผู้ใช้
-            setUserName(`${userInfo.firstname} ${userInfo.lastname || ""}`);
-          }
+          const response = await fetchUserInfoQuery(userId);
+          setUserInfo(response);
         } catch (error) {
           console.error("Error fetching user info:", error);
         }
@@ -110,42 +116,58 @@ export default function Navbar() {
               {/* User Profile Icon */}
               <div className="relative group">
                 <button
-                  className="flex items-center space-x-2 hover:text-blue-200 transition-all"
+                  className="flex items-center space-x-3 text-white rounded-full shadow-md px-4 py-2 hover:bg-blue-700 hover:shadow-lg transition-all"
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
                   <FontAwesomeIcon
                     icon={faCircleUser}
                     size="2x"
-                    className="text-2xl mr-1"
+                    className="text-white mr-1"
                   />
-                  <span className="hidden md:inline font-bold">{userName}</span>
+                  <span className="hidden md:inline font-bold">
+                    {userInfo?.firstname} {userInfo?.lastname}
+                  </span>
                 </button>
 
-                {/* Dropdown Menu (แสดงเมื่อ Hover) */}
+                {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-[200px] bg-white text-gray-800 rounded-lg shadow-lg z-50"
+                    className="absolute right-0 mt-2 w-[280px] bg-white text-gray-800 rounded-xl shadow-xl z-50 border border-gray-100 overflow-hidden"
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                   >
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-gray-500">Signed in as</p>
+                      <p className="text-lg font-medium text-blue-700">
+                        {userInfo?.email}
+                      </p>
+                    </div>
                     <ul>
                       {/* Profile */}
                       <li
                         onClick={() => router.push("/profile")}
-                        className="px-4 py-2 hover:bg-blue-100 cursor-pointer flex items-center space-x-2 text-blue-500 rounded-lg"
+                        className="px-4 py-3 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 text-gray-700 transition-colors duration-200"
                       >
-                        <FontAwesomeIcon icon={faUser} />
-                        <span>Profile</span>
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          size="lg"
+                          className="text-blue-500"
+                        />
+                        <span className="text-blue-500 text-lg">Profile</span>
                       </li>
 
                       {/* Sign Out */}
                       <li
                         onClick={handleLogout}
-                        className="px-4 py-2 hover:bg-red-100 cursor-pointer flex items-center space-x-2 text-red-500 rounded-lg"
+                        className="px-4 py-3 hover:bg-red-50 cursor-pointer flex items-center space-x-3 text-gray-700 transition-colors duration-200 border-t border-gray-100"
                       >
-                        <FontAwesomeIcon icon={faSignOutAlt} />
-                        <span>Sign Out</span>
+                        <FontAwesomeIcon
+                          icon={faSignOutAlt}
+                          size="lg"
+                          className="text-red-500"
+                        />
+                        <span className="text-red-500 text-lg">Sign Out</span>
                       </li>
                     </ul>
                   </div>

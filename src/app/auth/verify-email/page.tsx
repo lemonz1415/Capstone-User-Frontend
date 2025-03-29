@@ -29,6 +29,8 @@ function VerifyEmailPage() {
   // ตรวจสอบสิทธิ์การเข้าถึง
   useEffect(() => {
     const isRegistered = sessionStorage.getItem("isRegistered");
+    const hasToken = localStorage.getItem("accessToken");
+    if (hasToken) return;
     if (!isRegistered && !isVerified) {
       setIsModalOpen(true);
     }
