@@ -170,3 +170,20 @@ export const getAIExplanation = async (message: {
     throw error;
   }
 };
+
+export const getAISuggestion = async (message: {
+  question: any;
+  choices: any;
+}) => {
+  try {
+    const response = await axios.post(`${HOST_URL}/api/exam/chat/suggest`, {
+      question: message.question,
+      choices: message.choices,
+    });
+
+    return response.data.message;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

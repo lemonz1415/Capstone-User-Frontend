@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import {
   getAIExplanation,
+  getAISuggestion,
   getAllExamLogIDQuery,
   getExamTestedDetailQuery,
 } from "@/query/exam.query";
@@ -130,28 +131,47 @@ function ExamDetailPage() {
     }
   };
 
-  const [aiSuggestionLoading, setAISuggestionLoading] = useState();
+  const [aiSuggestionLoading, setAISuggestionLoading] = useState<boolean[]>([]);
+  const [suggestionAnswers, setSuggestionAnswers] = useState<string[]>([]);
 
-  const createExamDataMessage = (item: any) => {
-    const correctAnswer = item.options.find(
-      (option: any) => option.is_correct === 1
-    );
-    const selectedAnswer = item.options.find(
-      (option: any) => option.option_id === item.selected_option_id
-    );
+  useEffect(() => {
+    if (examDetail) {
+      setAISuggestionLoading(new Array(examDetail.length).fill(false));
+    }
+  }, [examDetail]);
 
-    return {
-      question: item.question_text,
-      skill: item.skill_name,
-      selected_option: selectedAnswer ? selectedAnswer.option_text : null,
-      correct_option: correctAnswer?.option_text,
-      options: item.options.map((option: any) => option.option_text),
-    };
-  };
+  const onAISuggest = async (question: any, index: number) => {
+    setAISuggestionLoading((prevLoading) => {
+      const newLoading = [...prevLoading];
+      newLoading[index] = true;
+      return newLoading;
+    });
 
-  const onAISuggestion = () => {
-    const newExamData = examDetail?.map(createExamDataMessage);
-    console.log(newExamData);
+    try {
+      const message = {
+        question: question.question_text,
+        choices: question.options.map((option: any) => ({
+          option: option.option_text,
+          is_correct: option.is_correct,
+        })),
+      };
+
+      const response = await getAISuggestion(message);
+
+      setSuggestionAnswers((prevAnswers) => {
+        const newAnswers = [...prevAnswers];
+        newAnswers[index] = response;
+        return newAnswers;
+      });
+    } catch (error) {
+      console.error("Error fetching AI explanation:", error);
+    } finally {
+      setAISuggestionLoading((prevLoading) => {
+        const newLoading = [...prevLoading];
+        newLoading[index] = false;
+        return newLoading;
+      });
+    }
   };
 
   //ACCESS CHECKING ...
@@ -181,10 +201,9 @@ function ExamDetailPage() {
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
             Back to Exams
           </button>
-
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h1 className="text-3xl font-bold text-[#0066FF] mb-4">
-              Vocabulary and Grammar Exam
+              Examination Answers
             </h1>
             {isCompleted && (
               <div className="mt-4 text-gray-600">
@@ -200,14 +219,6 @@ function ExamDetailPage() {
                     {correctAnswers} / {totalQuestions}
                   </span>
                 </p>
-                <button
-                  onClick={onAISuggestion}
-                  className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg"
-                  disabled={aiSuggestionLoading}
-                >
-                  <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-                  {aiSuggestionLoading ? "Loading..." : "Get AI Suggestion"}
-                </button>
               </div>
             )}
           </div>
@@ -291,6 +302,42 @@ function ExamDetailPage() {
                       <div className="answer mt-4 p-4 bg-gray-100 rounded-lg text-black">
                         <strong>AI Explanation:</strong>
                         <p>{answers[index]}</p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => onAISuggest(question, index)}
+                      className={classNames(
+                        "flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 mt-2 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:scale-105",
+                        {
+                          "opacity-50 pointer-events-none":
+                            aiSuggestionLoading[index] ||
+                            aiSuggestionLoading.some(
+                              (loading) => loading === true
+                            ),
+                        }
+                      )}
+                      disabled={aiSuggestionLoading[index]}
+                    >
+                      {aiSuggestionLoading[index] ? (
+                        <FontAwesomeIcon
+                          icon={faSpinner}
+                          className="animate-spin mr-2"
+                        />
+                      ) : (
+                        <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
+                      )}
+                      <span>
+                        {aiSuggestionLoading[index]
+                          ? "Loading..."
+                          : "Get AI Suggestion"}
+                      </span>
+                    </button>
+
+                    {suggestionAnswers[index] && (
+                      <div className="answer mt-4 p-4 bg-gray-100 rounded-lg text-black">
+                        <strong>AI Suggestion:</strong>
+                        <p>{suggestionAnswers[index]}</p>
                       </div>
                     )}
                   </div>
