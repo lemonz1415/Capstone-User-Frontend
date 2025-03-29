@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Modal from "@/components/modal";
 import QuestionContent from "@/components/question_content";
 import withAuth from "@/middlewares/withAuth";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 function QuestionPage() {
   const router = useRouter();
@@ -21,11 +22,13 @@ function QuestionPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // เก็บ Index ของคำถามปัจจุบัน
   const [answers, setAnswers] = useState<(number | null)[]>([]); // เก็บคำตอบของผู้ใช้
   const [isInProgress, setIsInProgress] = useState(true); // เก็บสถานะ is_inprogress
-  const [isCompleted, setIsCompleted] = useState(false); 
+  const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // สถานะ Loading
   const [error, setError] = useState<string | null>(null); // ข้อผิดพลาด
   const [isModalOpen, setIsModalOpen] = useState(false); // State สำหรับ Modal
-  const [visibleDotsRange, setVisibleDotsRange] = useState<[number, number]>([0, 10,]); // ช่วงคำถามที่แสดง (เริ่มต้นที่ข้อ 1-10)
+  const [visibleDotsRange, setVisibleDotsRange] = useState<[number, number]>([
+    0, 10,
+  ]); // ช่วงคำถามที่แสดง (เริ่มต้นที่ข้อ 1-10)
 
   // Fetch ข้อมูลเมื่อ Component ถูก Mount
   useEffect(() => {
@@ -55,13 +58,12 @@ function QuestionPage() {
     fetchInitialData();
   }, [examID]);
 
-
   // ฟังก์ชันสำหรับเลือกคำตอบ
   const handleSelectOption = async (option_id: number) => {
     try {
       setAnswers((prev) =>
         prev.map((ans, index) =>
-          index === currentQuestionIndex ? option_id  : ans
+          index === currentQuestionIndex ? option_id : ans
         )
       );
       const response = await updateSelectedOptionQuery(
@@ -116,13 +118,13 @@ function QuestionPage() {
     try {
       setIsModalOpen(false); // ปิด Modal
       toast.loading("Submitting exam...");
-  
+
       // เรียก API เพื่อ Submit ข้อสอบ
       await getExamScoreQuery(examID);
-  
+
       toast.dismiss();
       toast.success("Exam Submitted Successfully!");
-  
+
       // Redirect ไปยังหน้ารายละเอียดข้อสอบ
       setTimeout(() => {
         router.push(`/exam/${examID}`);
@@ -134,23 +136,22 @@ function QuestionPage() {
     }
   };
 
-// ดักจับ Event ปุ่ม Arrow Keys
-useEffect(() => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "ArrowRight") {
-      handleNext(); // กดลูกศรขวาเพื่อไปข้อถัดไป
-    } else if (event.key === "ArrowLeft") {
-      handlePrevious(); // กดลูกศรซ้ายเพื่อย้อนกลับข้อก่อนหน้า
-    } 
-  };
+  // ดักจับ Event ปุ่ม Arrow Keys
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") {
+        handleNext(); // กดลูกศรขวาเพื่อไปข้อถัดไป
+      } else if (event.key === "ArrowLeft") {
+        handlePrevious(); // กดลูกศรซ้ายเพื่อย้อนกลับข้อก่อนหน้า
+      }
+    };
 
-  window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, [currentQuestionIndex, isLoading]); // ดักจับการเปลี่ยนแปลงของ currentQuestionIndex และ isLoading
-
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentQuestionIndex, isLoading]); // ดักจับการเปลี่ยนแปลงของ currentQuestionIndex และ isLoading
 
   if (error) {
     return <p className="text-center text-red-500">{error}</p>;
@@ -172,9 +173,17 @@ useEffect(() => {
         confirmText="Submit"
         cancelText="Cancel"
       />
-
-       {/* Progress Bar */}
-       {questions.length > 0 && (
+      <Modal
+        isOpen={isCompleted}
+        icon={faXmark}
+        onClose={() => router.push("/exam")}
+        onConfirmFetch={() => router.push("/exam")}
+        title="Exam Already Submitted"
+        message="You cannot make any changes to it."
+        confirmText="OK"
+      />
+      {/* Progress Bar */}
+      {questions.length > 0 && (
         <div className="w-full max-w-3xl mx-auto mb-6">
           <div className="w-full bg-gray-200 h-[6px] rounded-lg overflow-hidden">
             <div
@@ -190,8 +199,8 @@ useEffect(() => {
         </div>
       )}
 
-       {/* Question Content */}
-       <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-6">
+      {/* Question Content */}
+      <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-6">
         <p className="text-sm font-medium text-gray-500 text-center">
           Question {currentQuestionIndex + 1}
         </p>
@@ -207,8 +216,8 @@ useEffect(() => {
         )}
       </div>
 
-     {/* Indicator Dots */}
-     {questions.length > 0 && (
+      {/* Indicator Dots */}
+      {questions.length > 0 && (
         <div className="flex justify-center items-center space-x-2 mt-6 mb-4">
           {Array.from({ length: questions.length })
             .slice(visibleDotsRange[0], visibleDotsRange[1])
@@ -264,7 +273,9 @@ useEffect(() => {
       <div className="flex justify-center mt-6 max-w-3xl mx-auto mb-4">
         <button
           onClick={handleSubmit}
-          disabled={answeredCount !== questions.length || isInProgress || isCompleted} // ปุ่ม Submit จะกดได้เมื่อทำครบทุกข้อและ is_inprogress เป็น false
+          disabled={
+            answeredCount !== questions.length || isInProgress || isCompleted
+          } // ปุ่ม Submit จะกดได้เมื่อทำครบทุกข้อและ is_inprogress เป็น false
           className={`px-8 py-3 rounded-lg font-bold ${
             answeredCount === questions.length && !isInProgress && !isCompleted
               ? "bg-green-500 text-white hover:bg-green-600"

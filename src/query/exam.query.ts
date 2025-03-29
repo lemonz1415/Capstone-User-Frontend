@@ -158,7 +158,6 @@ export const getAIExplanation = async (message: {
   question: any;
   choices: any;
 }) => {
-  console.log(message);
   try {
     const response = await axios.post(`${HOST_URL}/api/exam/chat`, {
       question: message.question,

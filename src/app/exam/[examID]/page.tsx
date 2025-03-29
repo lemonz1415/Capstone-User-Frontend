@@ -2,7 +2,11 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faLightbulb,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import {
   getAIExplanation,
@@ -83,29 +87,36 @@ function ExamDetailPage() {
         )
     )?.length || 0;
 
-  // AI Loading & Answers State (Separate by index)
   const [aiLoading, setAiLoading] = useState<boolean[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
 
-  // Function to handle AI Explanation for each question
+  useEffect(() => {
+    if (examDetail) {
+      setAiLoading(new Array(examDetail.length).fill(false));
+    }
+  }, [examDetail]);
+
   const onAIExplain = async (question: any, index: number) => {
     setAiLoading((prevLoading) => {
       const newLoading = [...prevLoading];
-      newLoading[index] = true; // Set the specific question's loading state to true
+      newLoading[index] = true;
       return newLoading;
     });
 
     try {
       const message = {
         question: question.question_text,
-        choices: question.options.map((option: any) => option.option_text),
+        choices: question.options.map((option: any) => ({
+          option: option.option_text,
+          is_correct: option.is_correct,
+        })),
       };
 
       const response = await getAIExplanation(message);
 
       setAnswers((prevAnswers) => {
         const newAnswers = [...prevAnswers];
-        newAnswers[index] = response; // Save AI explanation for the specific question
+        newAnswers[index] = response;
         return newAnswers;
       });
     } catch (error) {
@@ -113,10 +124,34 @@ function ExamDetailPage() {
     } finally {
       setAiLoading((prevLoading) => {
         const newLoading = [...prevLoading];
-        newLoading[index] = false; // Set the specific question's loading state to false
+        newLoading[index] = false;
         return newLoading;
       });
     }
+  };
+
+  const [aiSuggestionLoading, setAISuggestionLoading] = useState();
+
+  const createExamDataMessage = (item: any) => {
+    const correctAnswer = item.options.find(
+      (option: any) => option.is_correct === 1
+    );
+    const selectedAnswer = item.options.find(
+      (option: any) => option.option_id === item.selected_option_id
+    );
+
+    return {
+      question: item.question_text,
+      skill: item.skill_name,
+      selected_option: selectedAnswer ? selectedAnswer.option_text : null,
+      correct_option: correctAnswer?.option_text,
+      options: item.options.map((option: any) => option.option_text),
+    };
+  };
+
+  const onAISuggestion = () => {
+    const newExamData = examDetail?.map(createExamDataMessage);
+    console.log(newExamData);
   };
 
   //ACCESS CHECKING ...
@@ -147,7 +182,6 @@ function ExamDetailPage() {
             Back to Exams
           </button>
 
-          {/* Exam Title and Score */}
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h1 className="text-3xl font-bold text-[#0066FF] mb-4">
               Vocabulary and Grammar Exam
@@ -166,11 +200,18 @@ function ExamDetailPage() {
                     {correctAnswers} / {totalQuestions}
                   </span>
                 </p>
+                <button
+                  onClick={onAISuggestion}
+                  className="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg"
+                  disabled={aiSuggestionLoading}
+                >
+                  <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
+                  {aiSuggestionLoading ? "Loading..." : "Get AI Suggestion"}
+                </button>
               </div>
             )}
           </div>
 
-          {/* Questions List */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-gray-800">Questions</h2>
             <ul className="space-y-4">
@@ -219,14 +260,17 @@ function ExamDetailPage() {
                     </div>
                   )}
                   <div className="mt-2">
-                    {/* ปุ่มเรียกใช้ AI */}
                     <button
                       onClick={() => onAIExplain(question, index)}
                       className={classNames(
-                        "flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:scale-105"
+                        "flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:scale-105",
+                        {
+                          "opacity-50 pointer-events-none":
+                            aiLoading[index] ||
+                            aiLoading.some((loading) => loading === true),
+                        }
                       )}
-                      disabled={aiLoading[index]} // Disable the button when loading
-                      style={aiLoading[index] ? { pointerEvents: "none" } : {}}
+                      disabled={aiLoading[index]}
                     >
                       {aiLoading[index] ? (
                         <FontAwesomeIcon
@@ -234,7 +278,7 @@ function ExamDetailPage() {
                           className="animate-spin mr-2"
                         />
                       ) : (
-                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                        <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
                       )}
                       <span>
                         {aiLoading[index]
@@ -243,7 +287,6 @@ function ExamDetailPage() {
                       </span>
                     </button>
 
-                    {/* แสดงคำตอบจาก AI ด้านล่างปุ่ม */}
                     {answers[index] && (
                       <div className="answer mt-4 p-4 bg-gray-100 rounded-lg text-black">
                         <strong>AI Explanation:</strong>
