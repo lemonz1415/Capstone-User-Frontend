@@ -19,7 +19,7 @@ import withAuth from "@/middlewares/withAuth";
 import Image from "next/image";
 
 const LoginBG = () => (
-  <div className="absolute inset-0 w-full h-full">
+  <div className="absolute inset-0 mt-[70px] w-full h-full">
     <Image
       src={LoginBackground}
       alt="Heading Background"
@@ -119,10 +119,10 @@ function LoginPage() {
   };
 
   return (
-    <div className="bg-cover bg-center flex items-center justify-center">
-      <LoginBG />
+    <div className="min-h-screen flex items-center justify-center">
       <Toaster position="top-right" />
-      <div className="bg-gradient-to-br from-white to-gray-100 shadow-lg rounded-2xl p-8 max-w-md w-full relative z-10 mt-[200px]">
+      <LoginBG />
+      <div className="bg-gradient-to-br from-white to-gray-100 shadow-lg rounded-2xl p-8 max-w-md w-full relative z-10 mt-[150px]">
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="bg-[#0066FF] py-5 px-6 rounded-3xl shadow-sm">

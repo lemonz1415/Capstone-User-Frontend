@@ -19,7 +19,7 @@ import withAuth from "@/middlewares/withAuth";
 import Image from "next/image";
 
 const RegisterBG = () => (
-  <div className="absolute inset-0">
+  <div className="absolute inset-0 mt-[50px] w-full h-full">
     <Image
       src={RegisterBackground}
       alt="Heading Background"
@@ -230,10 +230,10 @@ function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center flex items-center justify-center">
+    <div className="bg-cover bg-center flex items-center justify-center">
       <RegisterBG />
       <Toaster position="top-right" />
-      <div className="container mx-auto my-auto bg-white rounded-2xl shadow-xl max-w-6xl min-h-[550px] flex relative z-10">
+      <div className="container mx-auto my-auto mt-[70px] bg-white rounded-2xl shadow-xl max-w-6xl min-h-[550px] flex relative z-10">
         {/* Welcome Section */}
         <RegisterBannerBG />
         <div className="w-2/5 p-12 bg-cover bg-center rounded-tl-2xl rounded-bl-2xl text-white flex flex-col items-center justify-center relative z-10">
