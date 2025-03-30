@@ -370,7 +370,7 @@ function ProfilePage() {
           {/* Average Score */}
           <div className="bg-purple-50 p-6 rounded-lg text-center">
             <span className="text-3xl font-bold text-purple-600">
-              {averageScore.toFixed(1)}%
+              {averageScore.toFixed(2)}%
             </span>
             <p className="text-gray-700 mt-2">Average Score</p>
           </div>

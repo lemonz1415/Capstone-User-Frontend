@@ -16,10 +16,18 @@ import {
   getAllSkillQuery,
   getExamTestedStatQuery,
   getExamTestedSummarizeQuery,
+  getAllExamLogIDQuery,
+  getExamScoreQuery
 } from "@/query/exam.query";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
+import {
+  faClipboardList,
+  faChartBar,
+  faCheckCircle,
+  faPercentage,
+} from "@fortawesome/free-solid-svg-icons";
+import withAuth from "@/middlewares/withAuth";
 
 // Register necessary chart.js components
 ChartJS.register(
@@ -144,8 +152,8 @@ function Dashboard() {
       {
         label: "Correct Percentage",
         data: correctPercentages, // Correct percentages for each test
-        backgroundColor: "rgba(54, 162, 235, 0.6)", // Color of bars
-        borderColor: "rgba(54, 162, 235, 1)", // Border color
+        backgroundColor: "rgba(49, 112, 236, 0.8)", // Color of bars
+        borderColor: "rgba(49, 112, 236, 1)", // Border color
         borderWidth: 1,
       },
     ],
@@ -186,53 +194,77 @@ function Dashboard() {
     },
   };
 
-  return (
-    <div className="flex flex-col p-6 bg-blue-50 h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-blue-800">Dashboard User</h2>
+  return ( 
+    <div className=" bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen">
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-xl md:text-[34px] font-extrabold text-[#0066FF]">
+          User Performance Dashboard
+        </h2>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
-          <h3 className="text-lg text-white font-semibold">Total Exams</h3>
-          <p className="text-3xl font-bold text-white">
-            {stat?.total_exam_tested ? stat?.total_exam_tested : "-"}
-          </p>
-        </div>
+      <div className="bg-white p-8 rounded-xl shadow-xl border border-blue-100 mb-8">
+        <h3 className="text-xl font-bold text-[#0066FF] mb-4 pb-2 border-b border-gray-200">Key Metrics</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
+            <FontAwesomeIcon
+              icon={faChartBar}
+              className="text-blue-200 text-4xl mb-2"
+            />
+            <h3 className="text-lg text-blue-200 font-semibold mb-4">
+              Total Exams
+            </h3>
+            <p className="text-6xl font-bold text-white">
+              {stat?.total_exam_tested ? stat?.total_exam_tested : "-"}
+            </p>
+          </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
-          <h3 className="text-lg text-white font-semibold">Total Questions</h3>
-          <p className="text-3xl font-bold text-white">
-            {stat?.total_questions ? stat?.total_questions : "-"}
-          </p>
-        </div>
+          <div className="bg-gradient-to-r from-purple-500 to-purple-700 p-6 rounded-lg shadow-lg border border-indigo-300 text-center transform hover:scale-105 transition-all duration-300">
+            <FontAwesomeIcon
+              icon={faClipboardList}
+              className="text-purple-200 text-4xl mb-2"
+            />
+            <h3 className="text-lg text-purple-200 font-semibold mb-4">
+              Total Questions
+            </h3>
+            <p className="text-6xl font-bold text-white">
+              {stat?.total_questions ? stat?.total_questions : "-"}
+            </p>
+          </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
-          <h3 className="text-lg text-white font-semibold">
-            Correct Score / Total Score
-          </h3>
-          <p className="text-3xl font-bold text-white">
-            {stat?.score ? `${stat?.score}/${stat?.total}` : "-"}
-          </p>
-        </div>
+          <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-6 rounded-lg shadow-lg border border-emerald-300 text-center transform hover:scale-105 transition-all duration-300">
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="text-emerald-200 text-4xl mb-2"
+            />
+            <h3 className="text-lg text-emerald-200 font-semibold mb-4">
+              Correct Score
+            </h3>
+            <p className="text-6xl font-bold text-white">
+              {stat?.score ? `${stat?.score}/${stat?.total}` : "-"}
+            </p>
+          </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-6 rounded-lg shadow-lg border border-blue-300 text-center transform hover:scale-105 transition-all duration-300">
-          <h3 className="text-lg text-white font-semibold">Percentage Score</h3>
-          <p
-            className={`text-3xl font-bold ${
-              Number(stat?.average_score) < 50
-                ? "text-red-500"
-                : "text-green-300"
-            }`}
-          >
-            {stat?.average_score ? `${stat?.average_score}%` : "-"}
-          </p>
+          <div className={`bg-gradient-to-r ${Number(stat?.average_score) < 50 ? 'from-orange-500 to-red-600' : 'from-teal-500 to-teal-600'} p-6 rounded-lg shadow-lg border ${Number(stat?.average_score) < 50 ? 'border-orange-300' : 'border-blue-300'} text-center transform hover:scale-105 transition-all duration-300`}>
+            <FontAwesomeIcon
+              icon={faPercentage}
+              className={`text-4xl mb-2 ${Number(stat?.average_score) < 50 ? 'text-orange-200' :'text-emerald-200'}`}
+            />
+            <h3 className={`text-lg font-semibold mb-4 ${Number(stat?.average_score) < 50 ? 'text-orange-200' :'text-emerald-200'}`}>
+              Percentage Score
+            </h3>
+            <p
+              className="text-6xl font-bold ml-2 text-white" 
+            >
+              {stat?.average_score ? `${stat?.average_score}%` : "-"}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-6">
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-blue-200 w-full col-start-2 col-span-2">
-          <h4 className="text-lg font-semibold text-blue-800 mb-2">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="bg-white p-8 rounded-xl shadow-xl border border-blue-100 w-full">
+          <h4 className="text-xl font-bold text-[#0066FF] mb-4 pb-2 border-b border-gray-200">
             Performance Overview
           </h4>
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
@@ -276,7 +308,8 @@ function Dashboard() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
 
-export default Dashboard;
+export default withAuth(Dashboard);
