@@ -314,7 +314,7 @@ function ProfilePage() {
                   Date of Birth
                 </h3>
                 <p className="text-gray-800 font-medium">
-                  {userInfo.DOB || "-"}
+                  {userInfo.DOB ? convertDateToENWithoutTime(userInfo.DOB) : "-"}
                 </p>
               </div>
             </div>
