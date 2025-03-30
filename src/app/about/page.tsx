@@ -1,18 +1,24 @@
 "use-client";
 
+import Image from "next/image";
 import AboutUsBackground from "../../../public/images/about-us.jpg";
+
+const HeadingBackground = () => (
+  <div className="absolute inset-0 h-[400px]">
+    <Image
+      src={AboutUsBackground}
+      alt="Heading Background"
+      fill
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+);
 
 export default function About() {
   return (
     <div>
-      <section
-        className="h-[300px] text-center pt-[75px] text-white"
-        style={{
-          backgroundImage: `url(${AboutUsBackground.src})`,
-          backgroundSize: 1900,
-          backgroundPositionY: 900,
-        }}
-      >
+      <HeadingBackground />
+      <section className="h-[300px] text-center pt-[75px] text-white relative z-10">
         <h1 className="text-4xl font-bold mb-4">About Us</h1>
         <p className="text-lg px-[280px] font-bold">
           The "Web Application for Practicing English Exam" is designed to help
