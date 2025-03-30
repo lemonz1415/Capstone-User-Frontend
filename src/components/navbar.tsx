@@ -36,8 +36,7 @@ export default function Navbar() {
   const MENU = [
     { title: "Exam", path: "/exam", disabled: false },
     { title: "Dashboard", path: "/dashboard", disabled: false },
-    { title: "About", path: "/about", disabled: true },
-    { title: "Contact", path: "/contact", disabled: true },
+    { title: "About", path: "/about", disabled: false },
   ];
 
   // ดึงข้อมูลผู้ใช้เมื่อ login
