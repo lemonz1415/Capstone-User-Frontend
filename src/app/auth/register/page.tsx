@@ -16,6 +16,29 @@ import RegisterBackground from "../../../../public/images/auth-page-bg.jpg";
 import RegisterBannerBackground from "../../../../public/images/register-bg.jpg";
 import { registerUserQuery } from "@/query/auth.query";
 import withAuth from "@/middlewares/withAuth";
+import Image from "next/image";
+
+const RegisterBG = () => (
+  <div className="absolute inset-0">
+    <Image
+      src={RegisterBackground}
+      alt="Heading Background"
+      fill
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+);
+
+const RegisterBannerBG = () => (
+  <div className="absolute inset-0 w-[500px] rounded-tl-2xl rounded-bl-2xl">
+    <Image
+      src={RegisterBannerBackground}
+      alt="Heading Background"
+      fill
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+);
 
 function RegisterPage() {
   const router = useRouter();
@@ -57,77 +80,97 @@ function RegisterPage() {
     }
   };
 
-   const validateEmail = useCallback((value: string) => {
-     if (!value && emailFocused) {
-       setEmailError("Please enter your email");
-     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-       setEmailError("Please enter a valid email address");
-     } else {
-       setEmailError("");
-     }
-   }, [emailFocused]);
-
-   const validateDob = useCallback((value: string) => {
-    if (!value && dobFocused) {
-      setDobError("Please select your date of birth");
-    } else {
-      const selectedDate = new Date(value);
-      const currentDate = new Date();
-      if (selectedDate > currentDate) {
-        setDobError("Date of Birth cannot be in the future");
+  const validateEmail = useCallback(
+    (value: string) => {
+      if (!value && emailFocused) {
+        setEmailError("Please enter your email");
+      } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+        setEmailError("Please enter a valid email address");
       } else {
-        setDobError("");
+        setEmailError("");
       }
-    }
-  }, [dobFocused]);
+    },
+    [emailFocused]
+  );
 
-  const validatePassword = useCallback((value: string) => {
-    let error = "";
-     if (!value && passwordFocused) {
+  const validateDob = useCallback(
+    (value: string) => {
+      if (!value && dobFocused) {
+        setDobError("Please select your date of birth");
+      } else {
+        const selectedDate = new Date(value);
+        const currentDate = new Date();
+        if (selectedDate > currentDate) {
+          setDobError("Date of Birth cannot be in the future");
+        } else {
+          setDobError("");
+        }
+      }
+    },
+    [dobFocused]
+  );
+
+  const validatePassword = useCallback(
+    (value: string) => {
+      let error = "";
+      if (!value && passwordFocused) {
         error = "Please enter your password";
-     } else if (value.length < 8) {
+      } else if (value.length < 8) {
         error = "Password must be at least 8 characters long";
-     } else if (!/[A-Z]/.test(value)) {
+      } else if (!/[A-Z]/.test(value)) {
         error = "Password must contain at least one uppercase letter";
-     } else if (!/[a-z]/.test(value)) {
+      } else if (!/[a-z]/.test(value)) {
         error = "Password must contain at least one lowercase letter";
-     } else if (!/[0-9]/.test(value)) {
+      } else if (!/[0-9]/.test(value)) {
         error = "Password must contain at least one number";
-     } else if (!/[^A-Za-z0-9\s]/.test(value)) {
+      } else if (!/[^A-Za-z0-9\s]/.test(value)) {
         error = "Password must contain at least one special character";
-     }
-    setPasswordError(error);
-    return error;
-  }, [passwordFocused]);
-  
-  const validateConfirmPassword = useCallback((value: string) => {
-    if (!value && confirmPasswordFocused) {
-      setConfirmPasswordError("Please confirm your password");
-    } else if (value !== password) {
-      setConfirmPasswordError("Passwords do not match");
-    } else {
-      setConfirmPasswordError("");
-    }
-  }, [confirmPasswordFocused, password]);
+      }
+      setPasswordError(error);
+      return error;
+    },
+    [passwordFocused]
+  );
+
+  const validateConfirmPassword = useCallback(
+    (value: string) => {
+      if (!value && confirmPasswordFocused) {
+        setConfirmPasswordError("Please confirm your password");
+      } else if (value !== password) {
+        setConfirmPasswordError("Passwords do not match");
+      } else {
+        setConfirmPasswordError("");
+      }
+    },
+    [confirmPasswordFocused, password]
+  );
 
   const isFormValid =
-  firstname &&
-  lastname &&
-  email &&
-  dob &&
-  password &&
-  confirmPassword &&
-  password === confirmPassword &&
-  !firstnameError &&
-  !lastnameError &&
-  !emailError &&
-  !dobError &&
-  !passwordError &&
-  !confirmPasswordError;
-  
-   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, maxLength: number, fieldName: string) => {
+    firstname &&
+    lastname &&
+    email &&
+    dob &&
+    password &&
+    confirmPassword &&
+    password === confirmPassword &&
+    !firstnameError &&
+    !lastnameError &&
+    !emailError &&
+    !dobError &&
+    !passwordError &&
+    !confirmPasswordError;
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    maxLength: number,
+    fieldName: string
+  ) => {
     const target = e.target as HTMLInputElement;
-    if (target.value.length >= maxLength && e.key !== "Backspace" && e.key !== "Delete") {
+    if (
+      target.value.length >= maxLength &&
+      e.key !== "Backspace" &&
+      e.key !== "Delete"
+    ) {
       e.preventDefault();
       if (fieldName === "Firstname") {
         setFirstnameError("Firstname cannot exceed 30 characters");
@@ -150,23 +193,26 @@ function RegisterPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-     // Validate All Inputs Before Submit
-     validateFirstname(firstname);
-     validateLastname(lastname);
-     validateEmail(email);
-     validateDob(dob);
-     validatePassword(password);
-     validateConfirmPassword(confirmPassword);
+    // Validate All Inputs Before Submit
+    validateFirstname(firstname);
+    validateLastname(lastname);
+    validateEmail(email);
+    validateDob(dob);
+    validatePassword(password);
+    validateConfirmPassword(confirmPassword);
 
     const userData = { firstname, lastname, email, dob, password };
     setIsLoading(true);
     try {
       const response = await registerUserQuery(userData);
       if (response.success) {
-        toast.success(response.message || "Registration successful! Please check your email for the OTP.");
+        toast.success(
+          response.message ||
+            "Registration successful! Please check your email for the OTP."
+        );
         sessionStorage.setItem("isRegistered", "true"); // เก็บสถานะใน sessionStorage
         setTimeout(() => {
-          toast.dismiss(); 
+          toast.dismiss();
           router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
         }, 1000);
       } else {
@@ -175,7 +221,7 @@ function RegisterPage() {
     } catch (error: any) {
       console.error("Registration error:", error);
       toast.error(
-        error.response?.data?.message  ||
+        error.response?.data?.message ||
           "An error occurred during registration. Please try again."
       );
     } finally {
@@ -184,19 +230,13 @@ function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${RegisterBackground.src})`,
-      }}>
-       <Toaster position="top-right" />
-      <div className="container mx-auto my-auto bg-white rounded-2xl shadow-xl max-w-6xl min-h-[550px] flex">
+    <div className="min-h-screen bg-cover bg-center flex items-center justify-center">
+      <RegisterBG />
+      <Toaster position="top-right" />
+      <div className="container mx-auto my-auto bg-white rounded-2xl shadow-xl max-w-6xl min-h-[550px] flex relative z-10">
         {/* Welcome Section */}
-        <div
-          className="w-2/5 p-12 bg-cover bg-center rounded-tl-2xl rounded-bl-2xl text-white flex flex-col items-center justify-center"
-          style={{
-            backgroundImage: `url(${RegisterBannerBackground.src})`,
-          }}
-        >
+        <RegisterBannerBG />
+        <div className="w-2/5 p-12 bg-cover bg-center rounded-tl-2xl rounded-bl-2xl text-white flex flex-col items-center justify-center relative z-10">
           <h2 className="text-4xl font-bold mb-4 text-center">Welcome Back!</h2>
           <p className="text-md text-center">
             To keep connected with us please login with your personal info.
@@ -208,17 +248,19 @@ function RegisterPage() {
             Sign In
           </button>
         </div>
-        
+
         {/* Register Form */}
         <div className="w-3/5 p-12 flex flex-col items-center justify-center">
-
-        <h1 className="text-4xl font-bold mb-1 text-[#0066FF] text-center">Create Account</h1> 
-        <p className="text-gray-400 text-center mb-8">Please fill in this form to create an account!</p> 
+          <h1 className="text-4xl font-bold mb-1 text-[#0066FF] text-center">
+            Create Account
+          </h1>
+          <p className="text-gray-400 text-center mb-8">
+            Please fill in this form to create an account!
+          </p>
 
           <form onSubmit={handleSubmit} className="w-full max-w-lg">
             {/* Firstname and Lastname */}
             <div className="flex mb-4 space-x-4">
-
               {/* Firstname */}
               <div className="relative w-1/2">
                 <label
@@ -245,15 +287,18 @@ function RegisterPage() {
                       setFirstname(e.target.value);
                       validateFirstname(e.target.value);
                     }}
-                   onKeyDown={(e) => handleKeyDown(e, 30, "Firstname")}
-                   maxLength={30}
+                    onKeyDown={(e) => handleKeyDown(e, 30, "Firstname")}
+                    maxLength={30}
                     onBlur={() => setFirstnameFocused(true)}
                     disabled={isLoading}
                   />
                 </div>
                 {firstnameError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {firstnameError}
                   </p>
                 )}
@@ -270,7 +315,7 @@ function RegisterPage() {
                   Last Name
                 </label>
                 <div className="relative">
-                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FontAwesomeIcon icon={faUser} className="text-gray-400" />
                   </div>
                   <input
@@ -285,15 +330,18 @@ function RegisterPage() {
                       setLastname(e.target.value);
                       validateLastname(e.target.value);
                     }}
-                   onKeyDown={(e) => handleKeyDown(e, 30, "Lastname")}
-                   maxLength={30}
+                    onKeyDown={(e) => handleKeyDown(e, 30, "Lastname")}
+                    maxLength={30}
                     onBlur={() => setLastnameFocused(true)}
                     disabled={isLoading}
                   />
                 </div>
                 {lastnameError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {lastnameError}
                   </p>
                 )}
@@ -313,8 +361,11 @@ function RegisterPage() {
                   E-mail
                 </label>
                 <div className="relative">
-                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <FontAwesomeIcon icon={faEnvelope} className="text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <FontAwesomeIcon
+                      icon={faEnvelope}
+                      className="text-gray-400"
+                    />
                   </div>
                   <input
                     id="email"
@@ -329,14 +380,17 @@ function RegisterPage() {
                       validateEmail(e.target.value);
                     }}
                     onBlur={() => setEmailFocused(true)}
-                   onKeyDown={(e) => handleKeyDown(e, 50, "Email")}
-                   maxLength={50}
-                   disabled={isLoading}
+                    onKeyDown={(e) => handleKeyDown(e, 50, "Email")}
+                    maxLength={50}
+                    disabled={isLoading}
                   />
                 </div>
                 {emailError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {emailError}
                   </p>
                 )}
@@ -353,8 +407,11 @@ function RegisterPage() {
                   Date of Birth
                 </label>
                 <div className="relative">
-                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <FontAwesomeIcon icon={faCalendar} className="text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <FontAwesomeIcon
+                      icon={faCalendar}
+                      className="text-gray-400"
+                    />
                   </div>
                   <input
                     id="dob"
@@ -374,13 +431,16 @@ function RegisterPage() {
                 </div>
                 {dobError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {dobError}
                   </p>
                 )}
               </div>
             </div>
-            
+
             {/* Password and Confirm Password */}
             <div className="flex mb-6 space-x-4">
               {/* Password */}
@@ -394,7 +454,7 @@ function RegisterPage() {
                   Password
                 </label>
                 <div className="relative">
-                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <FontAwesomeIcon icon={faLock} className="text-gray-400" />
                   </div>
                   <input
@@ -416,12 +476,15 @@ function RegisterPage() {
                 </div>
                 {passwordError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {passwordError}
                   </p>
                 )}
               </div>
-              
+
               {/* Confirm Password */}
               <div className="relative w-1/2">
                 <label
@@ -454,18 +517,23 @@ function RegisterPage() {
                 </div>
                 {confirmPasswordError && (
                   <p className="text-red-500 text-xs italic mt-1">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-1"
+                    />
                     {confirmPasswordError}
                   </p>
                 )}
               </div>
             </div>
-            
+
             {/* Register Button */}
             <div className="flex items-center justify-center">
               <button
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full focus:outline-none focus:shadow-outline ${
-                  isLoading || !isFormValid ? "opacity-50 cursor-not-allowed" : ""
+                  isLoading || !isFormValid
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
                 type="submit"
                 disabled={isLoading || !isFormValid}

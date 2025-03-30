@@ -16,6 +16,18 @@ import LoginBackground from "../../../../public/images/auth-page-bg.jpg";
 import { loginUserQuery } from "@/query/auth.query";
 import { useAuth } from "@/contexts/auth.context";
 import withAuth from "@/middlewares/withAuth";
+import Image from "next/image";
+
+const LoginBG = () => (
+  <div className="absolute inset-0 w-full h-full">
+    <Image
+      src={LoginBackground}
+      alt="Heading Background"
+      fill
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+);
 
 function LoginPage() {
   const router = useRouter();
@@ -80,12 +92,19 @@ function LoginPage() {
       } else if (errorMessage === "Invalid password") {
         setPasswordError("Invalid password");
         setEmailError(""); // Clear email error
-      }else if (errorMessage === "Please verify your email before logging in") {
+      } else if (
+        errorMessage === "Please verify your email before logging in"
+      ) {
         toast.error(errorMessage);
         // ถ้าผู้ใช้ยังไม่ได้ยืนยันอีเมล ให้ redirect ไปยังหน้ายืนยันอีเมล
-        setTimeout(() => router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`), 1000);
-      } 
-      else {
+        setTimeout(
+          () =>
+            router.push(
+              `/auth/verify-email?email=${encodeURIComponent(email)}`
+            ),
+          1000
+        );
+      } else {
         setEmailError("");
         setPasswordError("");
         toast.error(errorMessage || "Login failed");
@@ -100,14 +119,10 @@ function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center"
-      style={{
-        backgroundImage: `url(${LoginBackground.src})`,
-      }}
-    >
+    <div className="bg-cover bg-center flex items-center justify-center">
+      <LoginBG />
       <Toaster position="top-right" />
-      <div className="bg-gradient-to-br from-white to-gray-100 shadow-lg rounded-2xl p-8 max-w-md w-full">
+      <div className="bg-gradient-to-br from-white to-gray-100 shadow-lg rounded-2xl p-8 max-w-md w-full relative z-10 mt-[200px]">
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="bg-[#0066FF] py-5 px-6 rounded-3xl shadow-sm">
@@ -240,4 +255,4 @@ function LoginPage() {
   );
 }
 
-export default withAuth(LoginPage)
+export default withAuth(LoginPage);

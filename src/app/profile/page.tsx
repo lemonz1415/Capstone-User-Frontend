@@ -20,6 +20,7 @@ import {
   convertDateToENWithoutTime,
   convertDateToEN,
 } from "@/utils/util.function";
+import Image from "next/image";
 
 interface User {
   user_id: number;
@@ -41,9 +42,20 @@ interface Exam {
 }
 
 interface Score {
-    total: number;
-    correct: number;
-  }
+  total: number;
+  correct: number;
+}
+
+const ProfileBG = () => (
+  <div className="absolute inset-0 h-[250px]">
+    <Image
+      src={ProfileBackground}
+      alt="Heading Background"
+      fill
+      style={{ objectFit: "cover" }}
+    />
+  </div>
+);
 
 function ProfilePage() {
   const router = useRouter();
@@ -51,8 +63,8 @@ function ProfilePage() {
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [exams, setExams] = useState<Exam[]>([]);
   const [scores, setScores] = useState<Record<number, Score>>({});
-  type FilterType = 'all' | 'completed' | 'inProgress';
-  const [filterType, setFilterType] = useState<FilterType>('all');
+  type FilterType = "all" | "completed" | "inProgress";
+  const [filterType, setFilterType] = useState<FilterType>("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -158,7 +170,10 @@ function ProfilePage() {
         // กรองเฉพาะข้อสอบที่ทำเสร็จแล้ว และเรียงตาม finish_at
         filteredExams = exams
           .filter((exam) => exam.is_completed)
-          .sort((a, b) => new Date(b.finish_at).getTime() - new Date(a.finish_at).getTime());
+          .sort(
+            (a, b) =>
+              new Date(b.finish_at).getTime() - new Date(a.finish_at).getTime()
+          );
         break;
 
       case "inProgress":
@@ -197,13 +212,9 @@ function ProfilePage() {
   return (
     <div className="relative min-h-screen bg-gray-100 flex flex-col">
       {/* Header Background */}
-      <div
-        className="min-h-64 w-full"
-        style={{
-          backgroundImage: `url(${ProfileBackground.src})`,
-          backgroundPosition: "center",
-        }}
-      ></div>
+      <div className="min-h-64 w-full">
+        <ProfileBG />
+      </div>
 
       <div className="container mx-auto px-4 -mt-20 ">
         {/* Profile Photo - วางทับระหว่าง background กับ container */}
@@ -314,7 +325,9 @@ function ProfilePage() {
                   Date of Birth
                 </h3>
                 <p className="text-gray-800 font-medium">
-                  {userInfo.DOB ? convertDateToENWithoutTime(userInfo.DOB) : "-"}
+                  {userInfo.DOB
+                    ? convertDateToENWithoutTime(userInfo.DOB)
+                    : "-"}
                 </p>
               </div>
             </div>
@@ -349,7 +362,7 @@ function ProfilePage() {
         <div className="flex justify-between items-center mb-6 pb-2 border-b border-grey-200">
           <h2 className="text-xl font-bold text-blue-700">Exam Statistics</h2>
         </div>
-       
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Total Exams */}
           <div className="bg-blue-50 p-6 rounded-lg text-center">
@@ -386,7 +399,9 @@ function ProfilePage() {
 
         {/* Recent Exams */}
         <div className="mt-8">
-          <h3 className="text-xl font-bold text-blue-700 mb-4 pb-2 border-b border-gray-200">Recent Exams</h3>
+          <h3 className="text-xl font-bold text-blue-700 mb-4 pb-2 border-b border-gray-200">
+            Recent Exams
+          </h3>
 
           {/* ตัวกรอง */}
           <div className="inline-flex p-1 mb-4">
@@ -432,17 +447,15 @@ function ProfilePage() {
                     className="flex justify-between items-center bg-gray-50 p-3 rounded-lg
                     hover:bg-gray-200 cursor-pointer transition-colors duration-200"
                     onClick={() => {
-                        if (exam.is_completed) {
-                          router.push(`/exam/${exam.exam_id}`);
-                        } else {
-                          router.push(`/exam/${exam.exam_id}/question`);
-                        }
-                      }}
+                      if (exam.is_completed) {
+                        router.push(`/exam/${exam.exam_id}`);
+                      } else {
+                        router.push(`/exam/${exam.exam_id}/question`);
+                      }
+                    }}
                   >
                     <div>
-                      <p className="font-medium text-gray-900">
-                        Exam
-                      </p>
+                      <p className="font-medium text-gray-900">Exam</p>
                       <p className="text-sm text-gray-500">
                         Submitted:{" "}
                         {exam.finish_at ? convertDateToEN(exam.finish_at) : "-"}
@@ -465,18 +478,29 @@ function ProfilePage() {
                     </div>
                   </div>
                 ))}
-                {/* "View All Exams" */}
-    <div className="mt-4">
-      <button
-        onClick={() => router.push('/exam')}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white justify-center px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2"
-      >
-        View All Exams
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-      </button>
-    </div>
+              {/* "View All Exams" */}
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push("/exam")}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white justify-center px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2"
+                >
+                  View All Exams
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4">No exams found</p>
