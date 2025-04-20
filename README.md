@@ -36,6 +36,9 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 - Email: `tester1@mailinator.com`  
 - Password: `1234`
 
+>[!NOTE]
+>You will need the [User Backend](https://github.com/CP24NW1/web-user-back) running locally as well.
+
 ---
 
 ## 📦 Getting Started (for development)
