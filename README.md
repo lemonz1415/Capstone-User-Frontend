@@ -20,11 +20,40 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 🛠 Tech Stack
 
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
 ![Next.js](https://img.shields.io/badge/Next.js-000?style=for-the-badge&logo=next.js)
-![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker)
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git)
+![Tailwind CSS](https://img.shields.io/badge/tailwindcss-38B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Git](https://img.shields.io/badge/git-F05032.svg?style=for-the-badge&logo=git&logoColor=white)
 
 ---
+
+## 🌐 Try It Out
+
+👉 [Try the Live Demo](https://capstone24.sit.kmutt.ac.th/nw1/)
+
+---
+
+## 📦 Getting Started (for development)
+
+> If you want to run this project locally or contribute, follow these steps:
+
+1. Clone this repository  
+2. `npm install`
+3. `npm run dev`
+4. (Set up `.env.local` as needed)
+
+---
+
+## 📸 Screenshots
+
+*(Add screenshots here if available)*
+
+---
+
+## 👤 Contributors
+
+- [Surachet Pichaiwattanaporn](https://github.com/yourusername) (Frontend)
+- [Supakorn Chat-anothai](https://github.com/64130500111) (Frontend, Backend)
+- [Wachirawit Jitphitthayakul](https://github.com/wachipor2546) (DevOps)
+
