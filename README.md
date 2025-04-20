@@ -47,7 +47,17 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 📸 Screenshots
 
-*(Add screenshots here if available)*
+### Home Page
+![Home Page](screenshots/home.png "Home page of the English Exam Practice Platform")
+
+### Exam Interface
+![Exam Interface](screenshots/exam.png "User practicing an English exam")
+
+### Result & AI Explanation
+![Result Page](screenshots/result.png "Exam results with AI-powered explanations")
+
+### User Dashboard
+![Dashboard](screenshots/dashboard.png "Personal dashboard showing exam history and statistics")
 
 ---
 
