@@ -120,7 +120,7 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 👤 Contributors
 
-- [Surachet Pichaiwattanaporn](https://github.com/yourusername) (Frontend)
+- [Surachet Pichaiwattanaporn](https://github.com/lemonz1415) (Frontend)
 - [Supakorn Chat-anothai](https://github.com/64130500111) (Frontend, Backend)
 - [Wachirawit Jitphitthayakul](https://github.com/wachipor2546) (DevOps)
 
