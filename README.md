@@ -30,7 +30,7 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 🌐 Try It Out
 
-👉 [Live Demo](https://capstone24.sit.kmutt.ac.th/nw1/)
+👉  [Live Demo](https://capstone24.sit.kmutt.ac.th/nw1/)
 
 **Demo Account:**  
 - Email: `tester1@mailinator.com`  
@@ -51,7 +51,7 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 📸 Screenshots
 
-### Home Page
+### Landing Page
 <p align="center">
   <img src="screenshots/landing-page.png" alt="Landing page introducing ExamPrep and main features." width="600"/>
 </p>
@@ -98,6 +98,23 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
   <img src="screenshots/dashboard-page.png" alt="Personal dashboard showing user’s exam history, scores, and statistics." width="600"/>
 </p>
 <p align="center"><i>Personal dashboard showing user’s exam history, scores, and statistics.</i></p>
+
+### Profile Page
+<p align="center">
+  <img src="screenshots/profile-page.png" alt="User profile page showing personal information, exam statistics, and recent exams." width="600"/>
+</p>
+<p align="center"><i>User profile page displaying personal information, exam statistics, and recent exam activity.</i></p>
+
+---
+
+## 🗂️ Related Repositories
+
+### User Side
+- [Capstone Project – English Exam Practice Platform (User Backend)](https://github.com/CP24NW1/web-user-back)
+
+### Admin Side
+- [Capstone Project – English Exam Practice Platform (Admin Frontend)](https://github.com/CP24NW1/web-admin-front)
+- [Capstone Project – English Exam Practice Platform (Admin Backend)](https://github.com/CP24NW1/web-admin-back)
 
 ---
 
