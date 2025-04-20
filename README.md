@@ -30,7 +30,11 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 
 ## 🌐 Try It Out
 
-👉 [Try the Live Demo](https://capstone24.sit.kmutt.ac.th/nw1/)
+👉 [Live Demo](https://capstone24.sit.kmutt.ac.th/nw1/)
+
+**Demo Account:**  
+- Email: `tester1@mailinator.com`  
+- Password: `1234`
 
 ---
 
@@ -48,29 +52,52 @@ E.g. This repository contains the **User Frontend** developed with React and Nex
 ## 📸 Screenshots
 
 ### Home Page
-![Landing Page](screenshots/landing-page.png "Home page of the English Exam Practice Platform")
+<p align="center">
+  <img src="screenshots/landing-page.png" alt="Landing page introducing ExamPrep and main features." width="600"/>
+</p>
+<p align="center"><i>Landing page introducing ExamPrep and main features.</i></p>
 
 ### Registration Page
-![Registration Page](screenshots/register-page.png "User practicing an English exam")
+<p align="center">
+  <img src="screenshots/register-page.png" alt="User registration form for creating a new ExamPrep account." width="600"/>
+</p>
+<p align="center"><i>User registration form for creating a new ExamPrep account.</i></p>
 
 ### Log-in Page
-![Log-in Page](screenshots/login-page.png "User practicing an English exam")
+<p align="center">
+  <img src="screenshots/login-page.png" alt="User login form to access ExamPrep platform." width="600"/>
+</p>
+<p align="center"><i>User login form to access ExamPrep platform.</i></p>
 
-### New Exam Page
-#### Random Exam
-![Random Exam](screenshots/newExam-random-page.png "User practicing an English exam")
+### New Exam Page – Random Exam
+<p align="center">
+  <img src="screenshots/newExam-random-page.png" alt="Select and start a random English exam." width="600"/>
+</p>
+<p align="center"><i>Select and start a random English exam.</i></p>
 
-#### Custom Exam
-![Custom Exam](screenshots/newExam-custom-page.png "User practicing an English exam")
+### New Exam Page – Custom Exam
+<p align="center">
+  <img src="screenshots/newExam-custom-page.png" alt="Customize exam settings before starting the test." width="600"/>
+</p>
+<p align="center"><i>Customize exam settings before starting the test.</i></p>
 
 ### Exam Interface
-![Exam Interface](screenshots/doExam-page.png "User practicing an English exam")
+<p align="center">
+  <img src="screenshots/doExam-page.png" alt="Exam interface where users answer questions and submit responses." width="600"/>
+</p>
+<p align="center"><i>Exam interface where users answer questions and submit responses.</i></p>
 
 ### Result & AI Explanation
-![Result Page](screenshots/result-page.png "Exam results with AI-powered explanations")
+<p align="center">
+  <img src="screenshots/result-page.png" alt="Exam results with detailed scores and AI-generated explanations for answers." width="600"/>
+</p>
+<p align="center"><i>Exam results with detailed scores and AI-generated explanations for answers.</i></p>
 
 ### User Dashboard
-![Dashboard](screenshots/dashboard-page.png "Personal dashboard showing exam history and statistics")
+<p align="center">
+  <img src="screenshots/dashboard-page.png" alt="Personal dashboard showing user’s exam history, scores, and statistics." width="600"/>
+</p>
+<p align="center"><i>Personal dashboard showing user’s exam history, scores, and statistics.</i></p>
 
 ---
 
